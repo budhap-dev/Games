@@ -163,6 +163,12 @@ export default function BubblePopGame({ difficulty, paused, onScore, onEnd }: Ga
   }
 
   useGameLoop(!paused && !ended, 16, update, render)
+  // read-only hook for end-to-end tests (?debug=1)
+  useEffect(() => {
+    if (!location.search.includes('debug=1')) return
+    ;(window as unknown as { __bubble?: unknown }).__bubble = { grid: () => grid.current, shape: () => shape.current, current: () => current.current, size: () => size, R }
+    return () => { delete (window as unknown as { __bubble?: unknown }).__bubble }
+  })
 
   return <div className="stage"><canvas ref={canvas} aria-label="Bubble Pop — drag to aim, release to fire" /></div>
 }
