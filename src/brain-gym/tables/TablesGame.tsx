@@ -20,6 +20,8 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
   const [phase, setPhase] = useState<'setup' | 'play'>('setup')
   const facts = useMemo(() => buildFacts(tables, cfg.division), [tables, cfg.division])
   const [fact, setFact] = useState<Fact | null>(null)
+  const [upNext, setUpNext] = useState<Fact | null>(null)
+  const upNextRef = useRef<Fact | null>(null)
   const [typed, setTyped] = useState('')
   const [left, setLeft] = useState(cfg.secs * 1000)
   const [flash, setFlash] = useState<{ ok: boolean; text: string } | null>(null)
@@ -30,8 +32,11 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
   const lockRef = useRef(false)
 
   const next = useCallback((last: string | null) => {
-    const f = pickNext(facts, statsRef.current, last)
-    setFact(f); setTyped(''); qStart.current = performance.now(); lockRef.current = false
+    // current = the previewed "up next" (or a fresh pick), then pre-pick the following one
+    const f = upNextRef.current && upNextRef.current.key !== last ? upNextRef.current : pickNext(facts, statsRef.current, last)
+    const n = pickNext(facts, statsRef.current, f.key)
+    upNextRef.current = n
+    setFact(f); setUpNext(n); setTyped(''); qStart.current = performance.now(); lockRef.current = false
   }, [facts])
 
   const start = () => { if (!tables.length) return; store.setTables(tables); sfx.unlock(); sfx.tap(); setPhase('play'); next(null) }
@@ -125,6 +130,7 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
         <div className="turn">✅ {correct.current}</div>
       </div>
       <div className="timer-bar" style={{ width: '100%' }} aria-hidden="true"><div style={{ width: `${pct}%`, background: pct < 20 ? 'var(--pink)' : 'var(--lime)' }} /></div>
+      <div className="tt-next" aria-label="Up next">Up next: <b>{upNext?.text}</b></div>
       <div className="card tt-q">
         <div className="sum" aria-live="polite">{fact?.text} = <span className={`tt-ans ${flash ? (flash.ok ? 'ok' : 'bad') : ''}`}>{typed || '?'}</span></div>
         <div className={`tt-flash ${flash ? (flash.ok ? 'ok' : 'bad') : ''}`}>{flash?.text ?? '·'}</div>
