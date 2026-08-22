@@ -6,6 +6,8 @@ export interface GameEnd {
   won?: boolean
   message: string
   emoji?: string
+  /** Optional extra result lines shown under the score */
+  details?: string[]
 }
 
 /** Every game is a React component with this contract. */

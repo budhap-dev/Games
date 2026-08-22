@@ -359,3 +359,9 @@ a { color: inherit; text-decoration: none; }
 .checkers .sel { box-shadow: inset 0 0 0 4px var(--sun); }
 .checkers .dest::after { content: ''; width: 30%; height: 30%; border-radius: 50%; background: rgba(255,201,60,.9); position: absolute; }
 .checkers .last { box-shadow: inset 0 0 0 3px rgba(45,156,219,.8); }
+
+/* Table Rockstars */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.chip { min-width: 56px; height: 46px; padding: 0 12px; border-radius: 999px; background: var(--surface); border: 2px solid var(--line); font-family: var(--display); font-weight: 700; font-size: 1.05rem; }
+.chip.on { background: var(--orange); color: #fff; border-color: transparent; box-shadow: 0 4px 0 #c45800; }
+.chip:active { transform: translateY(2px); }

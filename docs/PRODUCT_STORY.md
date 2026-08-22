@@ -69,6 +69,7 @@ Every game gets three difficulty levels (Easy / Normal / Hard), a Pause button, 
 | **Quick Maths** (timed addition/subtraction/tables) | Mental arithmetic |
 | **Word Scramble & Picture Riddles** | Vocabulary, lateral thinking |
 | **Memory Sequence** (remember where things were) | Working memory |
+| **Table Rockstars** (pick tables, 60–90 s, auto-check, rock status by speed, weak facts repeat) | Times-table fluency, recall speed |
 
 Brain Gym tracks **streaks** ("3 puzzles today!") rather than scores, and never shows a countdown on Easy.
 
