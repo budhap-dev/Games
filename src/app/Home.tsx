@@ -34,7 +34,7 @@ export function Home() {
   return (
     <>
       <header className="topbar">
-        <div className="brand"><img src="/icons/icon.svg" alt="" />PlayPatch</div>
+        <div className="brand"><img src="/icons/icon.svg" alt="PlayPatch" /><span>PlayPatch</span></div>
         <div className="grow" />
         <Link className="btn icon" to="/themes" aria-label="Themes">🎨</Link>
         <Link className="btn" to="/stickers" aria-label="Sticker book">⭐ {stickers}</Link>

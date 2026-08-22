@@ -56,7 +56,7 @@ export default function CodeBreakerGame({ difficulty, paused, onScore, onEnd }: 
           <div key={k} className="cb-row">
             <div className="cb-pegs">{r.guess.map((c, i) => <span key={i} style={{ background: COLORS[c], borderColor: 'transparent' }} />)}</div>
             <div className="cb-fb" aria-label={`${r.fb.black} exact, ${r.fb.white} misplaced`}>
-              {Array.from({ length: PEGS }, (_, i) => <i key={i} className={i < r.fb.black ? 'b' : i < r.fb.black + r.fb.white ? 'w' : ''} />)}
+              {Array.from({ length: PEGS }, (_, i) => <i key={i} className={i < r.fb.black ? 'b' : i < r.fb.black + r.fb.white ? 'w' : 'e'}>{i < r.fb.black ? '⚫' : i < r.fb.black + r.fb.white ? '⚪' : ''}</i>)}
             </div>
           </div>
         ))}
