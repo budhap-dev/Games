@@ -19,7 +19,7 @@ budhap-dev/Games                       ├─ push to main  → Production  http
 
 - **How it's wired:** the repo was imported into Vercel, which installed the Vercel GitHub App on `budhap-dev/Games`. Vercel receives a webhook for every push and PR and builds on its own infrastructure. There is **no** Vercel token, secret or workflow step in this repo.
 - **Dashboard:** https://vercel.com/work-0cc7/games
-- **Production:** every push to `main` (i.e. every merged PR) → https://games-work-0cc7.vercel.app
+- **Production:** every push to `main` (i.e. every merged PR) → **https://playpatch.vercel.app** (added 2026-08-22 as a project domain; `games-work-0cc7.vercel.app` still works)
 - **Previews:** every PR branch → a unique URL such as `https://games-8ur3pm0jf-work-0cc7.vercel.app`, plus a branch alias `games-git-<branch>-work-0cc7.vercel.app`. The URL is posted on the PR by `vercel[bot]` and shows up as the **Vercel** check.
 - **Build settings:** Vercel's Vite preset (`npm run build` → `dist/`). Repo-side config lives in [`vercel.json`](../vercel.json):
   - rewrite everything that isn't a static asset to `/index.html` so client-side routes (`/play/snake`, `/stickers`, `/grown-ups`) load directly and survive refresh;
@@ -82,7 +82,7 @@ gh api repos/budhap-dev/Games/deployments --jq '[.[]|select(.environment=="Previ
   | xargs -I{} gh api {} --jq '[.[]|select(.state=="success")][0].environment_url'
 
 # Production smoke checks: deep link, SW, manifest, caching
-U=https://games-work-0cc7.vercel.app
+U=https://playpatch.vercel.app
 for p in / /play/snake /sw.js /manifest.webmanifest; do curl -s -o /dev/null -w "$p %{http_code} %header{cache-control}\n" "$U$p"; done
 ```
 

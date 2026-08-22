@@ -43,4 +43,4 @@ src/
 - **v0.3a**: Whack-a-Mole, Brick Breaker, Connect Four, Odd One Out, Quick Maths.
 - **v0.3b**: Fruit Catch, Flappy Bee, Colour Echo, Sliding Puzzle, Tangram — **all 20 titles from the story are now playable.**
 
-Live: https://games-work-0cc7.vercel.app (Vercel auto-deploys `main`; PRs get preview URLs).
+Live: **https://playpatch.vercel.app** (alias of `games-work-0cc7.vercel.app`; Vercel auto-deploys `main`, PRs get preview URLs).
