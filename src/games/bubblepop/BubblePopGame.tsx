@@ -84,6 +84,7 @@ export default function BubblePopGame({ difficulty, paused, onScore, onEnd }: Ga
     grid.current = setCell(grid.current, row, col, s.col)
     const cl = cluster(grid.current, row, col, shape.current)
     let removed: [number, number][] = []
+    const before = grid.current
     if (cl.length >= cfg.match) { // touch the same colour → pop (Hard needs a group of 3)
       grid.current = remove(grid.current, cl)
       removed = cl
@@ -95,7 +96,7 @@ export default function BubblePopGame({ difficulty, paused, onScore, onEnd }: Ga
       sfx.pop()
       score.current += removed.length
       onScore(score.current)
-      for (const [rr, cc] of removed) { const [x, y] = cellCenter(rr, cc, r, shape.current); pops.current.push({ x, y, col: s.col, t: 1 }) }
+      for (const [rr, cc] of removed) { const [x, y] = cellCenter(rr, cc, r, shape.current); pops.current.push({ x, y, col: get(before, rr, cc) ?? s.col, t: 1 }) }
     } else sfx.flip()
     shots.current++
     if (isEmpty(grid.current)) { finish(true); return }
@@ -109,6 +110,9 @@ export default function BubblePopGame({ difficulty, paused, onScore, onEnd }: Ga
   }
 
   const update = () => {
+    // pop ghosts fade every tick, whether or not a shot is in flight
+    for (const p of pops.current) p.t -= 0.08
+    pops.current = pops.current.filter((p) => p.t > 0)
     const s = shot.current
     if (!s) return
     const r = R()
@@ -124,8 +128,6 @@ export default function BubblePopGame({ difficulty, paused, onScore, onEnd }: Ga
       }
     }
     if (hit) { shot.current = null; land(s) }
-    for (const p of pops.current) p.t -= 0.06
-    pops.current = pops.current.filter((p) => p.t > 0)
   }
 
   const render = () => {
@@ -166,7 +168,7 @@ export default function BubblePopGame({ difficulty, paused, onScore, onEnd }: Ga
   // read-only hook for end-to-end tests (?debug=1)
   useEffect(() => {
     if (!location.search.includes('debug=1')) return
-    ;(window as unknown as { __bubble?: unknown }).__bubble = { grid: () => grid.current, shape: () => shape.current, current: () => current.current, size: () => size, R }
+    ;(window as unknown as { __bubble?: unknown }).__bubble = { grid: () => grid.current, shape: () => shape.current, current: () => current.current, size: () => size, R, ghosts: () => pops.current.length }
     return () => { delete (window as unknown as { __bubble?: unknown }).__bubble }
   })
 
