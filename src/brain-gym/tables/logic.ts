@@ -1,5 +1,5 @@
 export interface Fact { key: string; a: number; b: number; op: '×' | '÷'; answer: number; text: string }
-export interface FactStat { seen: number; correct: number; avgMs: number }
+export interface FactStat { seen: number; correct: number; avgMs: number; okMs?: number /* total ms spent on correct answers */ }
 export type Stats = Record<string, FactStat>
 
 /** Build the question pool for the chosen tables (a × b and optionally the inverse divisions). */
@@ -32,7 +32,7 @@ export function pickNext(facts: Fact[], stats: Stats, lastKey: string | null, rn
 export function record(stats: Stats, key: string, correct: boolean, ms: number): Stats {
   const s = stats[key] ?? { seen: 0, correct: 0, avgMs: 0 }
   const seen = s.seen + 1
-  return { ...stats, [key]: { seen, correct: s.correct + (correct ? 1 : 0), avgMs: s.avgMs + (ms - s.avgMs) / seen } }
+  return { ...stats, [key]: { seen, correct: s.correct + (correct ? 1 : 0), avgMs: s.avgMs + (ms - s.avgMs) / seen, okMs: (s.okMs ?? 0) + (correct ? ms : 0) } }
 }
 
 /** Rock status from average seconds per correct answer (lower is better). */
@@ -58,4 +58,24 @@ export function weakest(stats: Stats, facts: Fact[], n = 3): Fact[] {
     .sort((x, y) => (x.s.correct / x.s.seen - y.s.correct / y.s.seen) || (y.s.avgMs - x.s.avgMs))
     .slice(0, n)
     .map((x) => x.f)
+}
+
+/** Average seconds per correct answer for one fact (all time), or null if never answered correctly. */
+export const avgCorrectSec = (s: FactStat | undefined) => (s && s.correct ? (s.okMs ?? s.avgMs * s.correct) / s.correct / 1000 : null)
+
+export interface Summary { answered: number; correct: number; avgOkSec: number | null }
+export function summarise(stats: Stats, keys?: string[]): Summary {
+  let answered = 0, correct = 0, okMs = 0
+  for (const [k, s] of Object.entries(stats)) {
+    if (keys && !keys.includes(k)) continue
+    answered += s.seen; correct += s.correct; okMs += s.okMs ?? s.avgMs * s.correct
+  }
+  return { answered, correct, avgOkSec: correct ? okMs / correct / 1000 : null }
+}
+/** Per-table summary (× facts a×b for table a, ÷ facts for divisor a). */
+export function perTable(stats: Stats, tables: number[]): { table: number; summary: Summary }[] {
+  return tables.map((t) => {
+    const keys = Object.keys(stats).filter((k) => k.startsWith(`${t}x`) || k.endsWith(`/${t}`))
+    return { table: t, summary: summarise(stats, keys) }
+  }).filter((x) => x.summary.answered > 0)
 }

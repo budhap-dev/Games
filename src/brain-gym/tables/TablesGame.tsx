@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import type { GameProps } from '@/games/types'
-import { buildFacts, pickNext, record, statusFor, weakest } from './logic'
+import { avgCorrectSec, buildFacts, perTable, pickNext, record, statusFor, summarise, weakest } from './logic'
 import type { Fact } from './logic'
 import { useTablesStore } from './stats'
 import { sfx } from '@/shared/audio'
@@ -13,6 +13,39 @@ const CONFIG = {
 }
 const ALL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 const CHEERS = ['Rock on!', 'Nice!', 'Boom!', 'Encore!', 'On fire 🔥', 'Smashing it!']
+const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '⌫', '0', '✓']
+const fmt = (sec: number | null) => (sec === null ? '–' : `${sec.toFixed(1)}s`)
+
+/** Timer lives in its own component so the 10×/s tick never re-renders the keypad/question. */
+const Timer = memo(function Timer({ totalMs, paused, onExpire }: { totalMs: number; paused: boolean; onExpire: () => void }) {
+  const [left, setLeft] = useState(totalMs)
+  const fired = useRef(false)
+  const expire = useRef(onExpire); expire.current = onExpire
+  useEffect(() => {
+    if (paused || fired.current) return
+    const t = setInterval(() => setLeft((l) => Math.max(0, l - 100)), 100)
+    return () => clearInterval(t)
+  }, [paused])
+  useEffect(() => { if (left <= 0 && !fired.current) { fired.current = true; expire.current() } }, [left])
+  const pct = (left / totalMs) * 100
+  return (
+    <>
+      <div className="turn">⏱ {Math.ceil(left / 1000)}s</div>
+      <div className="timer-bar" style={{ width: '100%', gridColumn: '1 / -1' }} aria-hidden="true"><div style={{ width: `${pct}%`, background: pct < 20 ? 'var(--pink)' : 'var(--lime)' }} /></div>
+    </>
+  )
+})
+
+/** Keypad is memoised; `onKey` is a stable ref-backed callback so the 12 buttons never re-render. */
+const Keypad = memo(function Keypad({ onKey }: { onKey: (k: string) => void }) {
+  return (
+    <div className="numpad tt-pad" aria-label="Number pad">
+      {KEYS.map((d) => (
+        <button key={d} className={d === '⌫' ? 'del' : d === '✓' ? 'enter' : ''} onPointerDown={(e) => { e.preventDefault(); onKey(d) }} aria-label={d === '⌫' ? 'Delete' : d === '✓' ? 'Enter' : d}>{d === '⌫' ? 'DELETE' : d === '✓' ? 'ENTER' : d}</button>
+      ))}
+    </div>
+  )
+})
 
 export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameProps) {
   const cfg = CONFIG[difficulty]
@@ -25,89 +58,94 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
   const facts = useMemo(() => buildFacts(tables, cfg.division), [tables, cfg.division])
   const [fact, setFact] = useState<Fact | null>(null)
   const [upNext, setUpNext] = useState<Fact | null>(null)
-  const upNextRef = useRef<Fact | null>(null)
   const [typed, setTyped] = useState('')
-  const [left, setLeft] = useState(cfg.secs * 1000)
   const [flash, setFlash] = useState<{ ok: boolean; text: string } | null>(null)
   const [streak, setStreak] = useState(0)
-  const correct = useRef(0), asked = useRef(0), totalMs = useRef(0), qStart = useRef(0)
-  const log = useRef<{ text: string; answer: number; ok: boolean; ms: number }[]>([])
-  const statsRef = useRef(store.stats)
-  const ended = useRef(false)
-  const lockRef = useRef(false)
+  const [correctN, setCorrectN] = useState(0)
+  // mutable session state (no re-renders)
+  const st = useRef({ fact: null as Fact | null, upNext: null as Fact | null, typed: '', correct: 0, asked: 0, okMs: 0, qStart: 0, streak: 0, lock: false, ended: false,
+    log: [] as { key: string; text: string; answer: number; ok: boolean; ms: number }[], stats: store.stats })
+  const pausedRef = useRef(paused); pausedRef.current = paused
 
   const next = useCallback((last: string | null) => {
-    // current = the previewed "up next" (or a fresh pick), then pre-pick the following one
-    const f = upNextRef.current && upNextRef.current.key !== last ? upNextRef.current : pickNext(facts, statsRef.current, last)
-    const n = pickNext(facts, statsRef.current, f.key)
-    upNextRef.current = n
-    setFact(f); setUpNext(n); setTyped(''); qStart.current = performance.now(); lockRef.current = false
+    const S = st.current
+    const f = S.upNext && S.upNext.key !== last ? S.upNext : pickNext(facts, S.stats, last)
+    const n = pickNext(facts, S.stats, f.key)
+    S.fact = f; S.upNext = n; S.typed = ''; S.qStart = performance.now(); S.lock = false
+    setFact(f); setUpNext(n); setTyped('')
   }, [facts])
 
-  const start = () => { if (!tables.length) return; store.setTables(tables); sfx.unlock(); sfx.tap(); setPhase('play'); next(null) }
-
-  // timer
-  useEffect(() => {
-    if (phase !== 'play' || paused || ended.current) return
-    const t = setInterval(() => setLeft((l) => Math.max(0, l - 100)), 100)
-    return () => clearInterval(t)
-  }, [phase, paused])
-
-  // finish
-  useEffect(() => {
-    if (phase !== 'play' || left > 0 || ended.current) return
-    ended.current = true
-    store.setStats(statsRef.current)
-    const c = correct.current, n = asked.current
-    const avg = c ? totalMs.current / c / 1000 : 99
-    const st = statusFor(avg)
-    const weak = weakest(statsRef.current, facts)
+  const finish = useCallback(() => {
+    const S = st.current
+    if (S.ended) return
+    S.ended = true
+    store.setStats(S.stats)
+    const c = S.correct, n = S.asked
+    const avg = c ? S.okMs / c / 1000 : 99
+    const status = statusFor(avg)
+    const weak = weakest(S.stats, facts)
+    const all = summarise(S.stats)
+    // session per-table
+    const byTable = new Map<number, { ok: number; n: number; ms: number }>()
+    for (const l of S.log) { const t = l.key.includes('x') ? Number(l.key.split('x')[0]) : Number(l.key.split('/')[1]); const e = byTable.get(t) ?? { ok: 0, n: 0, ms: 0 }; e.n++; if (l.ok) { e.ok++; e.ms += l.ms } byTable.set(t, e) }
+    const tableLine = [...byTable.entries()].sort((a, b) => a[0] - b[0]).map(([t, e]) => `${t}× ${e.ok}/${e.n}${e.ok ? ` · ${(e.ms / e.ok / 1000).toFixed(1)}s` : ''}`).join('  ')
     setTimeout(() => onEnd({
       score: c, won: c >= 15,
-      message: `${st.emoji} ${st.name}!`, emoji: '🎸',
+      message: `${status.emoji} ${status.name}!`, emoji: '🎸',
       details: [
         `${c} correct out of ${n} · ${n ? Math.round((c / n) * 100) : 0}% accuracy`,
-        c ? `Average ${avg.toFixed(1)}s per correct answer` : 'No answers this time — try again!',
+        c ? `Average ${avg.toFixed(1)}s per correct answer this session` : 'No answers this time — try again!',
+        all.correct ? `All time: ${all.correct}/${all.answered} correct · average ${fmt(all.avgOkSec)} per correct answer` : '',
+        tableLine ? `By table: ${tableLine}` : '',
         weak.length ? `Practise: ${weak.map((w) => w.text).join(' · ')}` : '',
       ].filter(Boolean),
-      list: log.current.map((l) => ({ label: `${l.text} = ${l.answer}`, value: l.ok ? `${(l.ms / 1000).toFixed(1)}s` : '✗', ok: l.ok })),
-    }), 400)
-  }, [left, phase, facts, onEnd, store])
+      list: S.log.map((l) => ({ label: `${l.text} = ${l.answer}`, value: l.ok ? `${(l.ms / 1000).toFixed(1)}s · avg ${fmt(avgCorrectSec(S.stats[l.key]))}` : '✗', ok: l.ok })),
+    }), 350)
+  }, [facts, onEnd, store])
 
   const answer = useCallback((value: string) => {
-    if (!fact || lockRef.current || ended.current) return
-    lockRef.current = true
-    const ms = performance.now() - qStart.current
-    const ok = Number(value) === fact.answer
-    asked.current++
-    log.current.push({ text: fact.text, answer: fact.answer, ok, ms })
-    statsRef.current = record(statsRef.current, fact.key, ok, ms)
+    const S = st.current
+    if (!S.fact || S.lock || S.ended) return
+    S.lock = true
+    const ms = performance.now() - S.qStart
+    const ok = Number(value) === S.fact.answer
+    S.asked++
+    S.log.push({ key: S.fact.key, text: S.fact.text, answer: S.fact.answer, ok, ms })
+    S.stats = record(S.stats, S.fact.key, ok, ms)
     if (ok) {
-      correct.current++; totalMs.current += ms; onScore(correct.current)
-      const s = streak + 1; setStreak(s); sfx.pop()
-      setFlash({ ok: true, text: s % 5 === 0 ? `${s} in a row! ${CHEERS[(s / 5) % CHEERS.length | 0]}` : '✓' })
-      setTimeout(() => { setFlash(null); next(fact.key) }, 180)
+      S.correct++; S.okMs += ms; S.streak++
+      setCorrectN(S.correct); setStreak(S.streak); onScore(S.correct); sfx.pop()
+      setFlash({ ok: true, text: S.streak % 5 === 0 ? `${S.streak} in a row! ${CHEERS[(S.streak / 5) % CHEERS.length | 0]}` : '✓' })
+      next(S.fact.key) // instantly on to the next question
+      setTimeout(() => setFlash((f) => (f?.ok ? null : f)), 500)
     } else {
-      setStreak(0); sfx.bad()
-      setFlash({ ok: false, text: `${fact.text} = ${fact.answer}` })
-      setTimeout(() => { setFlash(null); next(fact.key) }, 1100)
+      S.streak = 0; setStreak(0); sfx.bad()
+      setFlash({ ok: false, text: `${S.fact.text} = ${S.fact.answer}` })
+      setTimeout(() => { setFlash(null); next(st.current.fact?.key ?? null) }, 900)
     }
-  }, [fact, streak, next, onScore])
+  }, [next, onScore])
 
-  const type = useCallback((d: string) => {
-    if (!fact || paused || lockRef.current) return
-    if (d === '⌫') { setTyped((t) => t.slice(0, -1)); return }
-    if (d === '✓') { if (typed) answer(typed); else sfx.bad(); return }
-    if (typed.length < 3) setTyped(typed + d)
-  }, [fact, paused, typed, answer])
+  const onKey = useCallback((d: string) => {
+    const S = st.current
+    if (!S.fact || pausedRef.current || S.lock || S.ended) return
+    if (d === '⌫') { S.typed = S.typed.slice(0, -1); setTyped(S.typed); return }
+    if (d === '✓') { if (S.typed) answer(S.typed); else sfx.bad(); return }
+    if (S.typed.length < 3) { S.typed += d; setTyped(S.typed) }
+  }, [answer])
+  const onKeyRef = useRef(onKey); onKeyRef.current = onKey
+  const stableKey = useCallback((d: string) => onKeyRef.current(d), [])
 
   useEffect(() => {
     if (phase !== 'play') return
-    const h = (e: KeyboardEvent) => { if (/^\d$/.test(e.key)) type(e.key); else if (e.key === 'Backspace') type('⌫'); else if (e.key === 'Enter') type('✓') }
+    const h = (e: KeyboardEvent) => { if (/^\d$/.test(e.key)) onKeyRef.current(e.key); else if (e.key === 'Backspace') onKeyRef.current('⌫'); else if (e.key === 'Enter') onKeyRef.current('✓') }
     window.addEventListener('keydown', h); return () => window.removeEventListener('keydown', h)
-  }, [phase, type])
+  }, [phase])
+
+  const start = () => { if (!tables.length) return; store.setTables(tables); sfx.unlock(); sfx.tap(); setPhase('play'); next(null) }
 
   if (phase === 'setup') {
+    const all = summarise(store.stats)
+    const pt = perTable(store.stats, ALL)
     return (
       <div className="card stack" style={{ width: 'min(100%, 520px)' }}>
         <h2 className="center" style={{ fontSize: '1.6rem' }}>🎸 Pick your tables</h2>
@@ -123,29 +161,31 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
         <p className="muted center" style={{ margin: 0 }}>{cfg.secs} seconds{cfg.division ? ' · × and ÷' : ''} · type the answer and press ENTER · weak facts come back more often</p>
         <button className="btn primary" onClick={start} disabled={!tables.length}>🤘 Rock!</button>
         <button className="btn ghost" onClick={async () => { const url = `${location.origin}/play/tables?d=${difficulty}&tables=${tables.join(',')}`; sfx.tap(); try { if (navigator.share && navigator.maxTouchPoints > 0) { await navigator.share({ title: 'PlayPatch — Table Rockstars', url }); return } } catch (e) { if ((e as Error).name === 'AbortError') return } try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800) } catch { /* clipboard blocked */ } }}>{copied ? '✅ Link copied!' : '🔗 Share link with these tables'}</button>
+        {all.answered > 0 && (
+          <div className="tt-stats" aria-label="Your stats">
+            <div className="row" style={{ justifyContent: 'space-between' }}><b>📊 All time</b><span>{all.correct}/{all.answered} correct · avg {fmt(all.avgOkSec)} per correct</span></div>
+            <ul className="end-list" style={{ maxHeight: '22vh' }}>
+              {pt.map(({ table, summary }) => <li key={table}><span>{table}× · {summary.correct}/{summary.answered}</span><b>{fmt(summary.avgOkSec)}</b></li>)}
+            </ul>
+          </div>
+        )}
       </div>
     )
   }
 
-  const pct = (left / (cfg.secs * 1000)) * 100
   return (
     <div className="tt-play">
-      <div className="row" style={{ width: '100%', justifyContent: 'space-between' }}>
-        <div className="turn">⏱ {Math.ceil(left / 1000)}s</div>
+      <div className="tt-hud">
+        <Timer totalMs={cfg.secs * 1000} paused={paused} onExpire={finish} />
         <div className="turn">🔥 {streak}</div>
-        <div className="turn">✅ {correct.current}</div>
+        <div className="turn">✅ {correctN}</div>
       </div>
-      <div className="timer-bar" style={{ width: '100%' }} aria-hidden="true"><div style={{ width: `${pct}%`, background: pct < 20 ? 'var(--pink)' : 'var(--lime)' }} /></div>
       <div className="tt-next" aria-label="Up next">Up next: <b>{upNext?.text}</b></div>
       <div className="card tt-q">
-        <div className="sum" aria-live="polite">{fact?.text} = <span className={`tt-ans ${flash ? (flash.ok ? 'ok' : 'bad') : ''}`}>{typed || '?'}</span></div>
+        <div className="sum" aria-live="polite">{fact?.text} = <span className={`tt-ans ${flash && !flash.ok ? 'bad' : ''}`}>{typed || '?'}</span></div>
         <div className={`tt-flash ${flash ? (flash.ok ? 'ok' : 'bad') : ''}`}>{flash?.text ?? '·'}</div>
       </div>
-      <div className="numpad tt-pad" aria-label="Number pad">
-        {['1', '2', '3', '4', '5', '6', '7', '8', '9', '⌫', '0', '✓'].map((d) => (
-          <button key={d} className={d === '⌫' ? 'del' : d === '✓' ? 'enter' : ''} onPointerDown={(e) => { e.preventDefault(); type(d) }} aria-label={d === '⌫' ? 'Delete' : d === '✓' ? 'Enter' : d}>{d === '⌫' ? 'DELETE' : d === '✓' ? 'ENTER' : d}</button>
-        ))}
-      </div>
+      <Keypad onKey={stableKey} />
     </div>
   )
 }
