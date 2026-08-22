@@ -40,6 +40,7 @@ src/
 
 - **v0.1 (MVP)**: Snake, Tic-Tac-Toe, Memory Match, Sudoku Jr., Maze Runner; Sticker Book; Grown-ups corner (hold-to-enter, daily limit, sound, reduced motion); offline PWA.
 - **v0.2**: Brainvita, Bubble Pop, Kart Dash, Spot the Difference, What Comes Next?; GitHub Actions CI (test + build).
+- **v0.3a**: Whack-a-Mole, Brick Breaker, Connect Four, Odd One Out, Quick Maths.
 - Remaining titles from the story appear on the home grid with a "Soon" ribbon.
 
 Live: https://games-work-0cc7.vercel.app (Vercel auto-deploys `main`; PRs get preview URLs).
