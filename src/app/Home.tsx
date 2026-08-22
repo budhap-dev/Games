@@ -23,6 +23,7 @@ export function Home() {
         <div className="tabs" role="tablist">
           <button role="tab" className="tab" aria-selected={tab === 'arcade'} onClick={() => { sfx.unlock(); sfx.tap(); setTab('arcade') }}>🕹️ Arcade</button>
           <button role="tab" className="tab" aria-selected={tab === 'brain'} onClick={() => { sfx.unlock(); sfx.tap(); setTab('brain') }}>🧠 Brain Gym</button>
+          <button role="tab" className="tab" aria-selected={tab === 'teen'} onClick={() => { sfx.unlock(); sfx.tap(); setTab('teen') }}>🧪 Brain Lab</button>
         </div>
         <div className="tiles">
           {list.map((g) => (

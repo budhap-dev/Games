@@ -63,6 +63,22 @@ export const GAMES: GameMeta[] = [
   { id: 'tangram', name: 'Tangram', emoji: '🔷', category: 'brain', color: 'sky', scoreLabel: 'pieces', ready: true,
     howTo: 'Drag each shape from the bottom onto the grey picture until it clicks into place. Fill the whole shape!',
     load: () => import('@/brain-gym/tangram/TangramGame') },
+  // ---- Brain Lab (teens 14+) ----
+  { id: 'g2048', name: '2048', emoji: '🔢', category: 'teen', color: 'sun', scoreLabel: 'points', ready: true,
+    howTo: 'Swipe or use arrow keys to slide all tiles. Tiles with the same number merge. Reach 2048 — then keep going for a high score!',
+    load: () => import('@/brain-lab/g2048/Game2048') },
+  { id: 'minesweeper', name: 'Minesweeper', emoji: '💣', category: 'teen', color: 'grape', scoreLabel: 'cleared', ready: true,
+    howTo: 'Tap to reveal a square; the number says how many mines touch it. Use the 🚩 button (or long-press) to flag mines. Clear every safe square!',
+    load: () => import('@/brain-lab/minesweeper/MinesweeperGame') },
+  { id: 'wordguess', name: 'Word Guess', emoji: '🔤', category: 'teen', color: 'lime', scoreLabel: 'points', ready: true,
+    howTo: 'Guess the 5-letter word. Green = right letter, right place. Yellow = right letter, wrong place. Grey = not in the word.',
+    load: () => import('@/brain-lab/wordguess/WordGuessGame') },
+  { id: 'codebreaker', name: 'Code Breaker', emoji: '🕵️', category: 'teen', color: 'sky', scoreLabel: 'points', ready: true,
+    howTo: 'Crack the secret colour code. After each guess: ⚫ = right colour in the right spot, ⚪ = right colour, wrong spot. Deduce it before your guesses run out!',
+    load: () => import('@/brain-lab/codebreaker/CodeBreakerGame') },
+  { id: 'lightsout', name: 'Lights Out', emoji: '💡', category: 'teen', color: 'orange', scoreLabel: 'solved', ready: true,
+    howTo: 'Tapping a light toggles it and its four neighbours. Turn every light off in as few moves as you can.',
+    load: () => import('@/brain-lab/lightsout/LightsOutGame') },
 ]
 
 export const getGame = (id: string) => GAMES.find((g) => g.id === id)

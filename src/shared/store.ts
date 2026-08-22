@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 export type Difficulty = 'easy' | 'normal' | 'hard'
-export type Category = 'arcade' | 'brain'
+export type Category = 'arcade' | 'brain' | 'teen'
 
 export interface GameResult {
   gameId: string
@@ -65,7 +65,7 @@ export const useStore = create<State>()(
           plays: { ...s.plays, [gameId]: (s.plays[gameId] ?? 0) + 1 },
           wins: won ? { ...s.wins, [gameId]: (s.wins[gameId] ?? 0) + 1 } : s.wins,
           puzzlesByDay:
-            category === 'brain' && won
+            category !== 'arcade' && won
               ? { ...s.puzzlesByDay, [day]: (s.puzzlesByDay[day] ?? 0) + 1 }
               : s.puzzlesByDay,
         })
