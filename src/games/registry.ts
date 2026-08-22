@@ -15,7 +15,7 @@ export const GAMES: GameMeta[] = [
     howTo: 'Tap a gem, then tap an empty hole to jump over a neighbour. Jumped gems disappear. Try to leave just one!',
     load: () => import('./brainvita/BrainvitaGame') },
   { id: 'bubblepop', name: 'Bubble Pop', emoji: '🫧', category: 'arcade', color: 'sky', scoreLabel: 'bubbles', ready: true,
-    howTo: 'Drag to aim, let go to fire. Match three or more of the same colour to pop them. Don’t let the bubbles reach the bottom!',
+    howTo: 'Drag to aim, let go to fire. When your bubble touches one of the same colour, they pop! (On Hard you need a group of three.) Don’t let the bubbles reach the bottom!',
     load: () => import('./bubblepop/BubblePopGame') },
   { id: 'kartdash', name: 'Kart Dash', emoji: '🏎️', category: 'arcade', color: 'orange', scoreLabel: 'stars', ready: true,
     howTo: 'Tap the left or right side (or swipe / arrow keys) to change lanes. Collect stars, dodge puddles — they only slow you down!',
