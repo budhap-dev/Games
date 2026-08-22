@@ -15,21 +15,21 @@ export function useGameLoop(
   updateRef.current = update
   renderRef.current = render
 
+  // The frame loop always runs (cheap) so the canvas is drawn immediately — countdowns, paused
+  // boards and first paint all show; `update` only advances while `running`.
   useEffect(() => {
-    if (!running) {
-      renderRef.current()
-      return
-    }
     let raf = 0
     let last = performance.now()
     let acc = 0
     const frame = (now: number) => {
-      acc += Math.min(now - last, 250)
+      if (running) {
+        acc += Math.min(now - last, 250)
+        while (acc >= stepMs) {
+          updateRef.current()
+          acc -= stepMs
+        }
+      } else acc = 0
       last = now
-      while (acc >= stepMs) {
-        updateRef.current()
-        acc -= stepMs
-      }
       renderRef.current()
       raf = requestAnimationFrame(frame)
     }
