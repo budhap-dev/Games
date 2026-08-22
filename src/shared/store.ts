@@ -24,6 +24,8 @@ interface State {
   playSeconds: Record<string, number> // date -> seconds
   puzzlesByDay: Record<string, number> // date -> solved
   stickers: string[]
+  favs: string[]
+  toggleFav: (gameId: string) => void
   setSound: (v: boolean) => void
   setReducedMotion: (v: boolean) => void
   setDailyLimit: (min: number) => void
@@ -45,12 +47,14 @@ const initial = {
   playSeconds: {},
   puzzlesByDay: {},
   stickers: [],
+  favs: [],
 }
 
 export const useStore = create<State>()(
   persist(
     (set, get) => ({
       ...initial,
+      toggleFav: (gameId) => set((s) => ({ favs: s.favs.includes(gameId) ? s.favs.filter((g) => g !== gameId) : [...s.favs, gameId] })),
       setSound: (sound) => set({ sound }),
       setReducedMotion: (reducedMotion) => set({ reducedMotion }),
       setDailyLimit: (dailyLimitMin) => set({ dailyLimitMin }),
@@ -81,7 +85,7 @@ export const useStore = create<State>()(
         set((s) => ({ stickers: [...s.stickers, id] }))
         return true
       },
-      resetAll: () => set({ ...initial, sound: get().sound, reducedMotion: get().reducedMotion }),
+      resetAll: () => set({ ...initial, sound: get().sound, reducedMotion: get().reducedMotion, favs: get().favs }),
     }),
     { name: 'playpatch-v1' },
   ),

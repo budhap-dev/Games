@@ -36,6 +36,10 @@ src/
 3. Add an entry to `src/games/registry.ts` with `ready: true` and a `load` import.
    The shell handles the start card, difficulty, pause, restart, score pill, best score, stickers and confetti.
 
+## Mobile friendliness
+
+All interactive controls are ≥ 44 px on a 390 px phone (audited with Playwright across all games at Normal and Hard). Deliberate exceptions: Word Guess keyboard keys are 33 × 60 px (standard QWERTY compromise) and Sudoku 9×9 cells are 40 px so the board fits without scrolling; Minesweeper and Nonogram use 44 px cells on a board that scrolls when larger than the screen. No page scrolls horizontally.
+
 ## Status
 
 - **v0.1 (MVP)**: Snake, Tic-Tac-Toe, Memory Match, Sudoku Jr., Maze Runner; Sticker Book; Grown-ups corner (hold-to-enter, daily limit, sound, reduced motion); offline PWA.

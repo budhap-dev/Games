@@ -38,7 +38,7 @@ export default function NonogramGame({ difficulty, paused, onScore, onEnd }: Gam
           <button aria-pressed={mode === 'x'} onClick={() => { sfx.tap(); setMode('x') }}>✖ Mark</button>
         </div>
       </div>
-      <div className={`nono ${done ? 'solved' : ''}`} style={{ gridTemplateColumns: `${cluesW} repeat(${n}, 1fr)`, gridTemplateRows: `${Math.max(2, maxCol) * 1.1}em repeat(${n}, 1fr)` }} role="grid" aria-label="Nonogram">
+      <div className={`nono ${done ? 'solved' : ''}`} style={{ gridTemplateColumns: `${cluesW} repeat(${n}, minmax(44px, 1fr))`, gridTemplateRows: `${Math.max(2, maxCol) * 1.1}em repeat(${n}, minmax(44px, 1fr))` }} role="grid" aria-label="Nonogram">
         <div className="corner" />
         {cols.map((c, j) => <div key={`c${j}`} className="clue col" aria-label={`Column ${j + 1}: ${c.join(' ')}`}>{c.map((v, k) => <span key={k}>{v}</span>)}</div>)}
         {grid.map((row, r) => (

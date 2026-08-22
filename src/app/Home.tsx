@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import type { GameMeta } from '@/games/types'
 import { GAMES } from '@/games/registry'
 import { useStore } from '@/shared/store'
 import type { Category } from '@/shared/store'
@@ -9,7 +10,26 @@ export function Home() {
   const [tab, setTab] = useState<Category>('arcade')
   const best = useStore((s) => s.best)
   const stickers = useStore((s) => s.stickers.length)
-  const list = GAMES.filter((g) => g.category === tab)
+  const favs = useStore((s) => s.favs)
+  const toggleFav = useStore((s) => s.toggleFav)
+  const nav = useNavigate()
+  const isFav = (g: GameMeta) => favs.includes(g.id)
+  const list = GAMES.filter((g) => g.category === tab).sort((a, b) => Number(isFav(b)) - Number(isFav(a)))
+  const favList = favs.map((id) => GAMES.find((g) => g.id === id)).filter((g): g is GameMeta => !!g)
+
+  const tile = (g: GameMeta) => (
+    <div key={g.id} role="link" tabIndex={0} className="tile link" style={{ background: `var(--${g.color})` }}
+      onClick={() => { sfx.unlock(); sfx.pop(); nav(`/play/${g.id}`) }}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); nav(`/play/${g.id}`) } }}
+      aria-label={`${g.name}${isFav(g) ? ' (favourite)' : ''}`}>
+      <button className={`fav ${isFav(g) ? 'on' : ''}`} aria-label={isFav(g) ? `Remove ${g.name} from favourites` : `Add ${g.name} to favourites`} aria-pressed={isFav(g)}
+        onClick={(e) => { e.stopPropagation(); sfx.tap(); toggleFav(g.id) }}>{isFav(g) ? '❤️' : '🤍'}</button>
+      <span className="emoji" aria-hidden="true">{g.emoji}</span>
+      <span className="name">{g.name}</span>
+      {!g.ready && <span className="soon">SOON</span>}
+      {g.ready && best[g.id] ? <span className="best">Best {best[g.id]}</span> : null}
+    </div>
+  )
 
   return (
     <>
@@ -25,16 +45,13 @@ export function Home() {
           <button role="tab" className="tab" aria-selected={tab === 'brain'} onClick={() => { sfx.unlock(); sfx.tap(); setTab('brain') }}>🧠 Brain Gym</button>
           <button role="tab" className="tab" aria-selected={tab === 'teen'} onClick={() => { sfx.unlock(); sfx.tap(); setTab('teen') }}>🧪 Brain Lab</button>
         </div>
-        <div className="tiles">
-          {list.map((g) => (
-            <Link key={g.id} to={`/play/${g.id}`} className="tile" style={{ background: `var(--${g.color})` }} onClick={() => { sfx.unlock(); sfx.pop() }}>
-              <span className="emoji" aria-hidden="true">{g.emoji}</span>
-              <span className="name">{g.name}</span>
-              {!g.ready && <span className="soon">SOON</span>}
-              {g.ready && best[g.id] ? <span className="best">Best {best[g.id]}</span> : null}
-            </Link>
-          ))}
-        </div>
+        {favList.length > 0 && (
+          <section aria-label="Favourites" style={{ marginBottom: 22 }}>
+            <h2 className="section-title">❤️ Favourites</h2>
+            <div className="tiles">{favList.map(tile)}</div>
+          </section>
+        )}
+        <div className="tiles">{list.map(tile)}</div>
       </main>
     </>
   )
