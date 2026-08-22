@@ -127,7 +127,10 @@ export function GamePage() {
             <button className="btn primary" onClick={start}>▶ Play</button>
           )}
           {store.best[game.id] ? <p className="center muted">Best: {store.best[game.id]} {game.scoreLabel}</p> : null}
-          <button className="btn ghost" onClick={shareLink}>{copied ? '✅ Link copied!' : '🔗 Share link to this game'}</button>
+          <div className="row" style={{ justifyContent: 'center' }}>
+            <button className="btn" aria-pressed={store.favs.includes(game.id)} onClick={() => { sfx.tap(); store.toggleFav(game.id) }}>{store.favs.includes(game.id) ? '❤️ Favourite' : '🤍 Add to favourites'}</button>
+            <button className="btn ghost" onClick={shareLink}>{copied ? '✅ Link copied!' : '🔗 Share link'}</button>
+          </div>
         </div>
       ) : (
         <div className="game-area">

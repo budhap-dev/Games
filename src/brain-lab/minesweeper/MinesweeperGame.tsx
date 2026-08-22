@@ -53,7 +53,7 @@ export default function MinesweeperGame({ difficulty, paused, onScore, onEnd }: 
         <button className={`btn ${flagMode ? 'sky' : ''}`} onClick={() => { sfx.tap(); setFlagMode((f) => !f) }} aria-pressed={flagMode}>{flagMode ? '🚩 Flag mode' : '👆 Reveal mode'}</button>
         <div className="turn">⏱ {secs}s</div>
       </div>
-      <div className="mines" style={{ gridTemplateColumns: `repeat(${cfg.cols}, 1fr)` }} role="grid" aria-label="Minesweeper board" onContextMenu={(e) => e.preventDefault()}>
+      <div className="mines" style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(44px, 1fr))` }} role="grid" aria-label="Minesweeper board" onContextMenu={(e) => e.preventDefault()}>
         {board.map((c, i) => (
           <button
             key={i}

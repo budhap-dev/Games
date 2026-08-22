@@ -23,7 +23,7 @@ export default function Sudoku9Game({ difficulty, paused, onScore, onEnd }: Game
   return (
     <>
       <div className="turn">9️⃣ {grid.filter(Boolean).length} / 81</div>
-      <div className="sudoku" style={{ gridTemplateColumns: 'repeat(9, 1fr)', gap: 2, padding: 3 }} role="grid" aria-label="Sudoku 9x9">
+      <div className="sudoku" style={{ gridTemplateColumns: 'repeat(9, minmax(40px, 1fr))', gap: 2, padding: 3 }} role="grid" aria-label="Sudoku 9x9">
         {grid.map((v, i) => {
           const r = Math.floor(i / 9), c = i % 9
           const cls = [puzzle[i] ? 'given' : '', sel === i ? 'sel' : '', bad.has(i) ? 'bad' : '', (r + 1) % 3 === 0 && r < 8 ? 'box-r' : '', (c + 1) % 3 === 0 && c < 8 ? 'box-c' : ''].join(' ')
