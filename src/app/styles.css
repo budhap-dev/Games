@@ -314,3 +314,48 @@ a { color: inherit; text-decoration: none; }
 .lights { display: grid; gap: 8px; width: min(100%, 60vh, 400px); background: var(--ink); padding: 10px; border-radius: 18px; }
 .lights button { aspect-ratio: 1; border-radius: 12px; background: #2b3060; transition: background .12s, box-shadow .12s; }
 .lights button.on { background: var(--sun); box-shadow: 0 0 18px 2px rgba(255,201,60,.7); }
+
+/* Cows & bulls */
+.cb-guess { font-family: var(--display); font-weight: 700; font-size: 2.4rem; letter-spacing: .35em; text-align: center; min-height: 3rem; }
+.numpad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: min(100%, 360px); }
+.numpad button { height: 56px; border-radius: 14px; background: var(--surface); border: 2px solid var(--line); box-shadow: var(--shadow); font-family: var(--display); font-weight: 700; font-size: 1.4rem; }
+.numpad button:active { transform: translateY(3px); }
+.numpad button:disabled { opacity: .35; }
+.cows-log { width: min(100%, 360px); display: flex; flex-direction: column-reverse; gap: 6px; max-height: 34vh; overflow-y: auto; }
+.cows-log div { display: flex; justify-content: space-between; background: var(--surface); border: 2px solid var(--line); border-radius: 12px; padding: 6px 14px; font-family: var(--display); font-weight: 600; font-size: 1.2rem; letter-spacing: .15em; }
+
+/* Nonogram */
+.nono { display: grid; gap: 0; width: min(100%, 64vh, 470px); }
+.nono .corner { }
+.nono .clue { display: flex; align-items: flex-end; justify-content: flex-end; font-family: var(--display); font-weight: 700; font-size: clamp(.6rem, 2.6vw, .95rem); color: var(--ink-2); padding: 2px; gap: 3px; line-height: 1; }
+.nono .clue.col { flex-direction: column; align-items: center; justify-content: flex-end; }
+.nono .cell { aspect-ratio: 1; border: 1px solid var(--line); background: var(--surface); border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: .8rem; color: var(--ink-2); }
+.nono .cell.fill { background: var(--ink); }
+.nono .cell.thick-r { border-right: 2px solid var(--ink-2); } .nono .cell.thick-b { border-bottom: 2px solid var(--ink-2); }
+.nono.solved .cell.fill { background: var(--lime); }
+
+/* Make 24 */
+.m24 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: min(100%, 320px); }
+.m24 button { height: 84px; border-radius: 20px; background: var(--surface); border: 2px solid var(--line); box-shadow: var(--shadow); font-family: var(--display); font-weight: 700; font-size: 2rem; font-variant-numeric: tabular-nums; }
+.m24 button.sel { background: var(--sun-soft); border-color: var(--sun); }
+.m24 button.gone { visibility: hidden; }
+.ops { display: flex; gap: 10px; }
+.ops button { width: 58px; height: 58px; border-radius: 16px; background: var(--surface); border: 2px solid var(--line); box-shadow: var(--shadow); font-family: var(--display); font-weight: 700; font-size: 1.6rem; }
+.ops button.sel { background: var(--sky-soft); border-color: var(--sky); }
+
+/* Hanoi */
+.hanoi { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: min(100%, 70vh, 520px); height: clamp(200px, 36vh, 300px); }
+.peg { position: relative; display: flex; flex-direction: column-reverse; align-items: center; justify-content: flex-start; gap: 4px; padding-bottom: 10px; border-radius: 14px; background: var(--surface); border: 2px solid var(--line); }
+.peg::before { content: ''; position: absolute; left: 50%; top: 14px; bottom: 10px; width: 8px; margin-left: -4px; background: var(--line); border-radius: 4px; }
+.peg.sel { border-color: var(--orange); background: var(--orange-soft); }
+.peg .disc { height: 22px; border-radius: 11px; position: relative; z-index: 1; box-shadow: 0 2px 0 rgba(29,33,64,.2); }
+.peg .disc.lift { transform: translateY(-10px); }
+@media (prefers-reduced-motion: reduce) { .peg .disc { transition: none; } }
+
+/* Checkers */
+.checkers { display: grid; grid-template-columns: repeat(8, 1fr); width: min(100%, 66vh, 480px); border: 4px solid #5b3a1e; border-radius: 8px; overflow: hidden; }
+.checkers button { aspect-ratio: 1; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(1.2rem, 6.5vw, 2.4rem); position: relative; }
+.checkers .dark { background: #8a5a33; } .checkers .light { background: #f1d9b5; }
+.checkers .sel { box-shadow: inset 0 0 0 4px var(--sun); }
+.checkers .dest::after { content: ''; width: 30%; height: 30%; border-radius: 50%; background: rgba(255,201,60,.9); position: absolute; }
+.checkers .last { box-shadow: inset 0 0 0 3px rgba(45,156,219,.8); }
