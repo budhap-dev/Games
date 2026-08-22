@@ -40,5 +40,6 @@ export const sfx = {
   good: () => { tone(523, 0.1, 'triangle'); tone(659, 0.1, 'triangle', 0.15, 0.1); tone(784, 0.18, 'triangle', 0.15, 0.2) },
   bad: () => { tone(300, 0.14, 'sawtooth', 0.06); tone(220, 0.2, 'sawtooth', 0.06, 0.12) },
   win: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.18, 'triangle', 0.14, i * 0.11)) },
+  note: (i: number) => tone([392, 494, 587, 698, 784, 880][i % 6], 0.4, 'triangle', 0.16),
   lose: () => { tone(392, 0.15, 'sine', 0.12); tone(330, 0.25, 'sine', 0.12, 0.15) },
 }
