@@ -72,8 +72,20 @@ Every game gets three difficulty levels (Easy / Normal / Hard), a Pause button, 
 
 Brain Gym tracks **streaks** ("3 puzzles today!") rather than scores, and never shows a countdown on Easy.
 
+### 🧪 Brain Lab (teens 14–18 — strategy, deduction & brainstorming)
+Added after launch for older siblings: classic thinking games with real depth, no picture hints, harder difficulty curves and scores worth bragging about. Same safety rules, same offline PWA.
+
+| Game | What it trains |
+|---|---|
+| **2048** (5×5 / 4×4 / 3×3) | Planning ahead, spatial strategy |
+| **Minesweeper** (8×8 → 12×12) | Deduction, risk reasoning |
+| **Word Guess** (Wordle-style, 5 letters) | Vocabulary, elimination logic |
+| **Code Breaker** (Mastermind, up to 6 colours w/ repeats) | Hypothesis testing |
+| **Lights Out** (3×3 / 5×5) | Pattern thinking, parity |
+| *Planned:* **Nonogram**, **Make 24**, **Tower of Hanoi**, **Checkers vs robot**, **Sudoku 9×9** | Logic, arithmetic creativity, recursion, strategy |
+
 ## 5. Shared experience layer
-- **Home** — big colourful tiles, two tabs: *Arcade* and *Brain Gym*; a search-free, scroll-free grid on phones (paged).
+- **Home** — big colourful tiles, three tabs: *Arcade*, *Brain Gym* and *Brain Lab*; a search-free grid on phones.
 - **Sticker Book** — stickers unlocked by milestones across games; the only "progression" system.
 - **Grown-ups corner** — hold-to-enter gate; play-time limits, sound/music toggle, reduced-motion, reset progress, export/import progress file.
 - **Sound & music** — short, cheerful, optional; all cues also shown visually.
