@@ -43,6 +43,7 @@ src/
 - **v0.3a**: Whack-a-Mole, Brick Breaker, Connect Four, Odd One Out, Quick Maths.
 - **v0.3b**: Fruit Catch, Flappy Bee, Colour Echo, Sliding Puzzle, Tangram — **all 20 titles from the story are now playable.**
 - **v0.4a — 🧪 Brain Lab** (teens 14–18): 2048, Minesweeper, Word Guess, Code Breaker, Lights Out.
-- **v0.4b**: Cows & Bulls, Nonogram, Make 24, Tower of Hanoi, Checkers vs robot, Sudoku 9×9 — **31 games total**.
+- **v0.4b**: Cows & Bulls, Nonogram, Make 24, Tower of Hanoi, Checkers vs robot, Sudoku 9×9.
+- **v0.5**: 🎸 Table Rockstars — timed times-tables trainer with rock-status ranks and adaptive practice (Brain Gym). **32 games total**.
 
 Live: **https://playpatch.vercel.app** (alias of `games-work-0cc7.vercel.app`; Vercel auto-deploys `main`, PRs get preview URLs).
