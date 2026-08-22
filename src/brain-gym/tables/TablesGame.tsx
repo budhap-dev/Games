@@ -90,10 +90,8 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
   const type = useCallback((d: string) => {
     if (!fact || paused || lockRef.current) return
     if (d === '⌫') { setTyped((t) => t.slice(0, -1)); return }
-    if (d === '✓') { if (typed) answer(typed); return } // Enter key only
-    const t = typed + d
-    setTyped(t)
-    if (t.length >= String(fact.answer).length) answer(t) // auto-submit as soon as enough digits are in
+    if (d === '✓') { if (typed) answer(typed); else sfx.bad(); return }
+    if (typed.length < 3) setTyped(typed + d)
   }, [fact, paused, typed, answer])
 
   useEffect(() => {
@@ -115,7 +113,7 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
           <button className="btn ghost" onClick={() => setTables(cfg.tables)}>Suggested</button>
           <button className="btn ghost" onClick={() => setTables(ALL)}>All</button>
         </div>
-        <p className="muted center" style={{ margin: 0 }}>{cfg.secs} seconds{cfg.division ? ' · × and ÷' : ''} · answers check automatically · weak facts come back more often</p>
+        <p className="muted center" style={{ margin: 0 }}>{cfg.secs} seconds{cfg.division ? ' · × and ÷' : ''} · type the answer and press ENTER · weak facts come back more often</p>
         <button className="btn primary" onClick={start} disabled={!tables.length}>🤘 Rock!</button>
       </div>
     )
@@ -136,8 +134,8 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
         <div className={`tt-flash ${flash ? (flash.ok ? 'ok' : 'bad') : ''}`}>{flash?.text ?? '·'}</div>
       </div>
       <div className="numpad tt-pad" aria-label="Number pad">
-        {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '⌫'].map((d) => (
-          <button key={d} className={d === '⌫' ? 'del' : d === '0' ? 'zero' : ''} onPointerDown={(e) => { e.preventDefault(); type(d) }} aria-label={d === '⌫' ? 'Delete' : d}>{d}</button>
+        {['1', '2', '3', '4', '5', '6', '7', '8', '9', '⌫', '0', '✓'].map((d) => (
+          <button key={d} className={d === '⌫' ? 'del' : d === '✓' ? 'enter' : ''} onPointerDown={(e) => { e.preventDefault(); type(d) }} aria-label={d === '⌫' ? 'Delete' : d === '✓' ? 'Enter' : d}>{d === '⌫' ? 'DELETE' : d === '✓' ? 'ENTER' : d}</button>
         ))}
       </div>
     </div>
