@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import type { GameProps } from '@/games/types'
 import { buildFacts, pickNext, record, statusFor, weakest } from './logic'
 import type { Fact } from './logic'
@@ -16,8 +17,11 @@ const CHEERS = ['Rock on!', 'Nice!', 'Boom!', 'Encore!', 'On fire 🔥', 'Smashi
 export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameProps) {
   const cfg = CONFIG[difficulty]
   const store = useTablesStore()
-  const [tables, setTables] = useState<number[]>(store.tables?.length ? store.tables : cfg.tables)
+  const [params] = useSearchParams()
+  const fromUrl = (params.get('tables') ?? '').split(',').map(Number).filter((n) => n >= 1 && n <= 12)
+  const [tables, setTables] = useState<number[]>(fromUrl.length ? fromUrl : store.tables?.length ? store.tables : cfg.tables)
   const [phase, setPhase] = useState<'setup' | 'play'>('setup')
+  const [copied, setCopied] = useState(false)
   const facts = useMemo(() => buildFacts(tables, cfg.division), [tables, cfg.division])
   const [fact, setFact] = useState<Fact | null>(null)
   const [upNext, setUpNext] = useState<Fact | null>(null)
@@ -27,6 +31,7 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
   const [flash, setFlash] = useState<{ ok: boolean; text: string } | null>(null)
   const [streak, setStreak] = useState(0)
   const correct = useRef(0), asked = useRef(0), totalMs = useRef(0), qStart = useRef(0)
+  const log = useRef<{ text: string; answer: number; ok: boolean; ms: number }[]>([])
   const statsRef = useRef(store.stats)
   const ended = useRef(false)
   const lockRef = useRef(false)
@@ -62,9 +67,10 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
       message: `${st.emoji} ${st.name}!`, emoji: '🎸',
       details: [
         `${c} correct out of ${n} · ${n ? Math.round((c / n) * 100) : 0}% accuracy`,
-        c ? `${avg.toFixed(1)}s per answer` : 'No answers this time — try again!',
+        c ? `Average ${avg.toFixed(1)}s per correct answer` : 'No answers this time — try again!',
         weak.length ? `Practise: ${weak.map((w) => w.text).join(' · ')}` : '',
       ].filter(Boolean),
+      list: log.current.map((l) => ({ label: `${l.text} = ${l.answer}`, value: l.ok ? `${(l.ms / 1000).toFixed(1)}s` : '✗', ok: l.ok })),
     }), 400)
   }, [left, phase, facts, onEnd, store])
 
@@ -74,6 +80,7 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
     const ms = performance.now() - qStart.current
     const ok = Number(value) === fact.answer
     asked.current++
+    log.current.push({ text: fact.text, answer: fact.answer, ok, ms })
     statsRef.current = record(statsRef.current, fact.key, ok, ms)
     if (ok) {
       correct.current++; totalMs.current += ms; onScore(correct.current)
@@ -115,6 +122,7 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
         </div>
         <p className="muted center" style={{ margin: 0 }}>{cfg.secs} seconds{cfg.division ? ' · × and ÷' : ''} · type the answer and press ENTER · weak facts come back more often</p>
         <button className="btn primary" onClick={start} disabled={!tables.length}>🤘 Rock!</button>
+        <button className="btn ghost" onClick={async () => { const url = `${location.origin}/play/tables?d=${difficulty}&tables=${tables.join(',')}`; sfx.tap(); try { if (navigator.share && navigator.maxTouchPoints > 0) { await navigator.share({ title: 'PlayPatch — Table Rockstars', url }); return } } catch (e) { if ((e as Error).name === 'AbortError') return } try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800) } catch { /* clipboard blocked */ } }}>{copied ? '✅ Link copied!' : '🔗 Share link with these tables'}</button>
       </div>
     )
   }

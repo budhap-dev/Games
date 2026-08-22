@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { getGame } from '@/games/registry'
 import type { GameEnd } from '@/games/types'
 import { useStore, useTodaySeconds } from '@/shared/store'
@@ -13,9 +13,11 @@ type Phase = 'start' | 'playing' | 'paused' | 'ended'
 
 export function GamePage() {
   const { id = '' } = useParams()
+  const [params] = useSearchParams()
   const game = getGame(id)
   const nav = useNavigate()
   const store = useStore()
+  const [copied, setCopied] = useState(false)
   const todaySec = useTodaySeconds()
   const limitSec = store.dailyLimitMin * 60
   const overLimit = limitSec > 0 && todaySec >= limitSec
@@ -28,6 +30,12 @@ export function GamePage() {
   const [newStickers, setNewStickers] = useState<Sticker[]>([])
   const [burst, setBurst] = useState(0)
   const difficulty: Difficulty = store.difficulty[id] ?? 'easy'
+  const autoStart = useRef(params.get('start') === '1')
+  useEffect(() => {
+    const d = params.get('d') as Difficulty | null
+    if (d && ['easy', 'normal', 'hard'].includes(d) && store.difficulty[id] !== d) store.setDifficulty(id, d)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
 
   const Game = useMemo(() => (game?.load ? lazy(game.load) : null), [game])
 
@@ -50,6 +58,12 @@ export function GamePage() {
 
   if (!game) return <NotFound />
 
+  const shareLink = async () => {
+    const url = `${location.origin}/play/${game!.id}?d=${difficulty}&start=1`
+    sfx.tap()
+    try { if (navigator.share && navigator.maxTouchPoints > 0) { await navigator.share({ title: `PlayPatch — ${game!.name}`, url }); return } } catch (e) { if ((e as Error).name === 'AbortError') return }
+    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800) } catch { /* clipboard blocked */ }
+  }
   const start = () => {
     sfx.unlock(); sfx.tap()
     setScore(0); setEnd(null); setNewStickers([]); setIsBest(false)
@@ -65,6 +79,12 @@ export function GamePage() {
     setNewStickers(fresh)
     if (r.won || isBest || fresh.length) { sfx.win(); setBurst((b) => b + 1) } else sfx.lose()
   }
+
+  // ?start=1 → skip the start card (used by shared links and home-screen shortcuts)
+  useEffect(() => {
+    if (autoStart.current && game?.ready && Game && !overLimit && phase === 'start') { autoStart.current = false; start() }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game, Game])
 
   if (!game.ready || !Game) {
     return (
@@ -107,6 +127,7 @@ export function GamePage() {
             <button className="btn primary" onClick={start}>▶ Play</button>
           )}
           {store.best[game.id] ? <p className="center muted">Best: {store.best[game.id]} {game.scoreLabel}</p> : null}
+          <button className="btn ghost" onClick={shareLink}>{copied ? '✅ Link copied!' : '🔗 Share link to this game'}</button>
         </div>
       ) : (
         <div className="game-area">
@@ -136,6 +157,11 @@ export function GamePage() {
                   {isBest && end.score > 0 ? <span> · 🏅 New best!</span> : null}
                 </p>
                 {end.details?.map((d, i) => <p key={i} className="muted" style={{ margin: 0, fontSize: '1rem' }}>{d}</p>)}
+                {end.list?.length ? (
+                  <ul className="end-list" aria-label="Breakdown">
+                    {end.list.map((it, i) => <li key={i} className={it.ok === false ? 'bad' : ''}><span>{it.label}</span><b>{it.value}</b></li>)}
+                  </ul>
+                ) : null}
                 {newStickers.map((s) => (
                   <div key={s.id} className="howto" style={{ background: 'var(--sun-soft)' }}>
                     🎁 New sticker: <b>{s.emoji} {s.name}</b>
