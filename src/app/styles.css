@@ -329,9 +329,17 @@ a { color: inherit; text-decoration: none; }
 .cb-pegs { display: flex; gap: 8px; }
 .cb-pegs button, .cb-pegs span { width: 44px; height: 44px; border-radius: 50%; border: 3px solid var(--line); background: var(--bg); display: inline-block; }
 .cb-pegs button.sel { border-color: var(--ink); }
-.cb-fb { display: grid; grid-template-columns: repeat(2, 14px); gap: 4px; }
-.cb-fb i { width: 14px; height: 14px; border-radius: 50%; background: var(--line); display: block; }
-.cb-fb i.b { background: #15172e; border: 2px solid #fff; box-sizing: border-box; } .cb-fb i.w { background: #fff; border: 2px solid #15172e; box-sizing: border-box; } /* theme-independent so they match the ⚫/⚪ in the instructions */
+<<<<<<< Updated upstream
+.cb-fb { display: grid; grid-template-columns: repeat(2, 20px); gap: 3px; }
+.cb-fb i { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 15px; line-height: 1; border-radius: 50%; }
+.cb-fb i.e { border: 2px dashed var(--line); box-sizing: border-box; } /* empty slot */
+/* ⚫ / ⚪ are the same emoji used in the instructions, so they always match */
+=======
+.cb-fb { display: grid; grid-template-columns: repeat(2, 18px); gap: 3px; }
+.cb-fb i { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 13px; line-height: 1; border-radius: 50%; }
+.cb-fb i.e { border: 2px dashed var(--line); box-sizing: border-box; } /* empty slot */
+/* ⚫ / ⚪ are the same emoji used in the instructions, so they always match */
+>>>>>>> Stashed changes
 .cb-pal { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .cb-pal button { width: 48px; height: 48px; border-radius: 50%; border: 3px solid rgba(29,33,64,.25); box-shadow: var(--shadow); }
 .cb-pal button:active { transform: translateY(3px); }
