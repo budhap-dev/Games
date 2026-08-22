@@ -157,6 +157,11 @@ export function GamePage() {
                   {isBest && end.score > 0 ? <span> · 🏅 New best!</span> : null}
                 </p>
                 {end.details?.map((d, i) => <p key={i} className="muted" style={{ margin: 0, fontSize: '1rem' }}>{d}</p>)}
+                {end.list?.length ? (
+                  <ul className="end-list" aria-label="Breakdown">
+                    {end.list.map((it, i) => <li key={i} className={it.ok === false ? 'bad' : ''}><span>{it.label}</span><b>{it.value}</b></li>)}
+                  </ul>
+                ) : null}
                 {newStickers.map((s) => (
                   <div key={s.id} className="howto" style={{ background: 'var(--sun-soft)' }}>
                     🎁 New sticker: <b>{s.emoji} {s.name}</b>

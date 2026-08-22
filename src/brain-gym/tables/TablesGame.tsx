@@ -69,8 +69,8 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
         `${c} correct out of ${n} · ${n ? Math.round((c / n) * 100) : 0}% accuracy`,
         c ? `Average ${avg.toFixed(1)}s per correct answer` : 'No answers this time — try again!',
         weak.length ? `Practise: ${weak.map((w) => w.text).join(' · ')}` : '',
-        log.current.length ? `Your answers: ${log.current.map((l) => `${l.text} = ${l.answer} ${l.ok ? `✓ ${(l.ms / 1000).toFixed(1)}s` : '✗'}`).join(' · ')}` : '',
       ].filter(Boolean),
+      list: log.current.map((l) => ({ label: `${l.text} = ${l.answer}`, value: l.ok ? `${(l.ms / 1000).toFixed(1)}s` : '✗', ok: l.ok })),
     }), 400)
   }, [left, phase, facts, onEnd, store])
 

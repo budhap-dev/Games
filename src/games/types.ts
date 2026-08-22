@@ -8,6 +8,8 @@ export interface GameEnd {
   emoji?: string
   /** Optional extra result lines shown under the score */
   details?: string[]
+  /** Optional compact list (e.g. per-answer breakdown) rendered in a small two-column grid */
+  list?: { label: string; value: string; ok?: boolean }[]
 }
 
 /** Every game is a React component with this contract. */
