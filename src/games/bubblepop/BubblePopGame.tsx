@@ -8,9 +8,9 @@ import { sfx } from '@/shared/audio'
 
 const COLORS = ['#ff5fa2', '#2d9cdb', '#ffc93c', '#3fb55b', '#7b4fd6', '#ff7a1a']
 const CONFIG = {
-  easy: { cols: 8, rows: 4, colours: 4, shotsPerRow: 8, maxRows: 11 },
-  normal: { cols: 9, rows: 5, colours: 5, shotsPerRow: 6, maxRows: 12 },
-  hard: { cols: 10, rows: 6, colours: 6, shotsPerRow: 5, maxRows: 12 },
+  easy: { cols: 8, rows: 4, colours: 4, shotsPerRow: 8, maxRows: 11, match: 2 },
+  normal: { cols: 9, rows: 5, colours: 5, shotsPerRow: 6, maxRows: 12, match: 2 },
+  hard: { cols: 10, rows: 6, colours: 6, shotsPerRow: 5, maxRows: 12, match: 3 },
 }
 
 interface Shot { x: number; y: number; vx: number; vy: number; col: number }
@@ -84,7 +84,7 @@ export default function BubblePopGame({ difficulty, paused, onScore, onEnd }: Ga
     grid.current = setCell(grid.current, row, col, s.col)
     const cl = cluster(grid.current, row, col, shape.current)
     let removed: [number, number][] = []
-    if (cl.length >= 3) {
+    if (cl.length >= cfg.match) { // touch the same colour → pop (Hard needs a group of 3)
       grid.current = remove(grid.current, cl)
       removed = cl
       const fl = floating(grid.current, shape.current)
