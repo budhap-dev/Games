@@ -20,6 +20,8 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
   const [phase, setPhase] = useState<'setup' | 'play'>('setup')
   const facts = useMemo(() => buildFacts(tables, cfg.division), [tables, cfg.division])
   const [fact, setFact] = useState<Fact | null>(null)
+  const [upNext, setUpNext] = useState<Fact | null>(null)
+  const upNextRef = useRef<Fact | null>(null)
   const [typed, setTyped] = useState('')
   const [left, setLeft] = useState(cfg.secs * 1000)
   const [flash, setFlash] = useState<{ ok: boolean; text: string } | null>(null)
@@ -30,8 +32,11 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
   const lockRef = useRef(false)
 
   const next = useCallback((last: string | null) => {
-    const f = pickNext(facts, statsRef.current, last)
-    setFact(f); setTyped(''); qStart.current = performance.now(); lockRef.current = false
+    // current = the previewed "up next" (or a fresh pick), then pre-pick the following one
+    const f = upNextRef.current && upNextRef.current.key !== last ? upNextRef.current : pickNext(facts, statsRef.current, last)
+    const n = pickNext(facts, statsRef.current, f.key)
+    upNextRef.current = n
+    setFact(f); setUpNext(n); setTyped(''); qStart.current = performance.now(); lockRef.current = false
   }, [facts])
 
   const start = () => { if (!tables.length) return; store.setTables(tables); sfx.unlock(); sfx.tap(); setPhase('play'); next(null) }
@@ -85,10 +90,8 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
   const type = useCallback((d: string) => {
     if (!fact || paused || lockRef.current) return
     if (d === '⌫') { setTyped((t) => t.slice(0, -1)); return }
-    if (d === '✓') { if (typed) answer(typed); return }
-    const t = typed + d
-    setTyped(t)
-    if (t.length >= String(fact.answer).length) answer(t) // auto-submit as soon as enough digits are in
+    if (d === '✓') { if (typed) answer(typed); else sfx.bad(); return }
+    if (typed.length < 3) setTyped(typed + d)
   }, [fact, paused, typed, answer])
 
   useEffect(() => {
@@ -110,7 +113,7 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
           <button className="btn ghost" onClick={() => setTables(cfg.tables)}>Suggested</button>
           <button className="btn ghost" onClick={() => setTables(ALL)}>All</button>
         </div>
-        <p className="muted center" style={{ margin: 0 }}>{cfg.secs} seconds{cfg.division ? ' · × and ÷' : ''} · answers check automatically · weak facts come back more often</p>
+        <p className="muted center" style={{ margin: 0 }}>{cfg.secs} seconds{cfg.division ? ' · × and ÷' : ''} · type the answer and press ENTER · weak facts come back more often</p>
         <button className="btn primary" onClick={start} disabled={!tables.length}>🤘 Rock!</button>
       </div>
     )
@@ -118,22 +121,23 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
 
   const pct = (left / (cfg.secs * 1000)) * 100
   return (
-    <>
-      <div className="row" style={{ width: 'min(100%, 420px)', justifyContent: 'space-between' }}>
+    <div className="tt-play">
+      <div className="row" style={{ width: '100%', justifyContent: 'space-between' }}>
         <div className="turn">⏱ {Math.ceil(left / 1000)}s</div>
         <div className="turn">🔥 {streak}</div>
         <div className="turn">✅ {correct.current}</div>
       </div>
-      <div className="timer-bar" style={{ width: 'min(100%, 420px)' }} aria-hidden="true"><div style={{ width: `${pct}%`, background: pct < 20 ? 'var(--pink)' : 'var(--lime)' }} /></div>
-      <div className="card" style={{ width: 'min(100%, 420px)', textAlign: 'center', padding: '16px 20px' }}>
-        <div className="sum" aria-live="polite" style={{ fontSize: 'clamp(2.2rem, 11vw, 3.4rem)' }}>{fact?.text} = <span style={{ color: flash ? (flash.ok ? 'var(--lime)' : 'var(--pink)') : 'var(--orange)', minWidth: '2ch', display: 'inline-block' }}>{typed || '?'}</span></div>
-        <div style={{ minHeight: '1.6rem', fontFamily: 'var(--display)', fontWeight: 700, color: flash ? (flash.ok ? 'var(--lime)' : 'var(--pink)') : 'transparent' }}>{flash?.text ?? '·'}</div>
+      <div className="timer-bar" style={{ width: '100%' }} aria-hidden="true"><div style={{ width: `${pct}%`, background: pct < 20 ? 'var(--pink)' : 'var(--lime)' }} /></div>
+      <div className="tt-next" aria-label="Up next">Up next: <b>{upNext?.text}</b></div>
+      <div className="card tt-q">
+        <div className="sum" aria-live="polite">{fact?.text} = <span className={`tt-ans ${flash ? (flash.ok ? 'ok' : 'bad') : ''}`}>{typed || '?'}</span></div>
+        <div className={`tt-flash ${flash ? (flash.ok ? 'ok' : 'bad') : ''}`}>{flash?.text ?? '·'}</div>
       </div>
-      <div className="numpad" aria-label="Number pad" style={{ gridTemplateColumns: 'repeat(3, 1fr)', width: 'min(100%, 300px)' }}>
+      <div className="numpad tt-pad" aria-label="Number pad">
         {['1', '2', '3', '4', '5', '6', '7', '8', '9', '⌫', '0', '✓'].map((d) => (
-          <button key={d} onPointerDown={(e) => { e.preventDefault(); type(d) }} aria-label={d === '⌫' ? 'Delete' : d === '✓' ? 'Check' : d} style={d === '✓' ? { background: 'var(--lime)', color: '#fff', borderColor: 'transparent' } : undefined}>{d}</button>
+          <button key={d} className={d === '⌫' ? 'del' : d === '✓' ? 'enter' : ''} onPointerDown={(e) => { e.preventDefault(); type(d) }} aria-label={d === '⌫' ? 'Delete' : d === '✓' ? 'Enter' : d}>{d === '⌫' ? 'DELETE' : d === '✓' ? 'ENTER' : d}</button>
         ))}
       </div>
-    </>
+    </div>
   )
 }
