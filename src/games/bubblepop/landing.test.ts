@@ -67,3 +67,24 @@ describe('bubble pop landing (current logic)', () => {
     expect(fails).toBe(0)
   })
 })
+
+describe('bubble pop: landing directly beneath a same-colour bubble (shifted rows)', () => {
+  it('joins the bubble above in every row parity and from both sides', () => {
+    const cols = 9, size = 360, r = size / (cols * 2 + 1)
+    let fails = 0, total = 0
+    for (const shift of [0, 1]) for (let c = 1; c < cols - 1; c++) for (const side of [-0.5, 0.5]) {
+      const shape = { cols, shift }
+      // rows 0..1 full of other colours; row 1 has the same-colour (0) target at column c; row 2 empty
+      const grid: Grid = [Array.from({ length: cols }, () => 1), Array.from({ length: cols }, (_, i) => (i === c ? 0 : 2))]
+      const [tx, ty] = cellCenter(1, c, r, shape)
+      // ball arrives just below the target, offset half a cell left/right (as in the screenshot), touching it
+      const x = tx + side * r, y = ty + r * Math.sqrt(3) * 0.98
+      let [row, col] = cellAt(x, y, r, shape); ;[row, col] = snapCell(grid, row, col, shape, r, x, y)
+      const g2 = setCell(grid, row, col, 0)
+      total++
+      if (cluster(g2, row, col, shape).length < 2) fails++
+    }
+    console.log(`beneath: cases=${total} failures=${fails}`)
+    expect(fails).toBe(0)
+  })
+})
