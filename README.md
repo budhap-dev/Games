@@ -42,6 +42,7 @@ src/
 - **v0.2**: Brainvita, Bubble Pop, Kart Dash, Spot the Difference, What Comes Next?; GitHub Actions CI (test + build).
 - **v0.3a**: Whack-a-Mole, Brick Breaker, Connect Four, Odd One Out, Quick Maths.
 - **v0.3b**: Fruit Catch, Flappy Bee, Colour Echo, Sliding Puzzle, Tangram — **all 20 titles from the story are now playable.**
-- **v0.4a — 🧪 Brain Lab** (teens 14–18): 2048, Minesweeper, Word Guess, Code Breaker, Lights Out. Next: Nonogram, Make 24, Tower of Hanoi, Checkers, Sudoku 9×9.
+- **v0.4a — 🧪 Brain Lab** (teens 14–18): 2048, Minesweeper, Word Guess, Code Breaker, Lights Out.
+- **v0.4b**: Cows & Bulls, Nonogram, Make 24, Tower of Hanoi, Checkers vs robot, Sudoku 9×9 — **31 games total**.
 
 Live: **https://playpatch.vercel.app** (alias of `games-work-0cc7.vercel.app`; Vercel auto-deploys `main`, PRs get preview URLs).

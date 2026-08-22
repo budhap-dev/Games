@@ -82,7 +82,12 @@ Added after launch for older siblings: classic thinking games with real depth, n
 | **Word Guess** (Wordle-style, 5 letters) | Vocabulary, elimination logic |
 | **Code Breaker** (Mastermind, up to 6 colours w/ repeats) | Hypothesis testing |
 | **Lights Out** (3×3 / 5×5) | Pattern thinking, parity |
-| *Planned:* **Nonogram**, **Make 24**, **Tower of Hanoi**, **Checkers vs robot**, **Sudoku 9×9** | Logic, arithmetic creativity, recursion, strategy |
+| **Cows & Bulls** (3/4/5-digit number, distinct digits) | Deduction, note-keeping |
+| **Nonogram** (5×5 → 10×10) | Logical inference, constraint satisfaction |
+| **Make 24** (four numbers, + − × ÷) | Arithmetic creativity, brainstorming combinations |
+| **Tower of Hanoi** (3 → 6 discs) | Recursion, planning |
+| **Checkers vs robot** (random → capture-greedy → minimax) | Strategy, look-ahead |
+| **Sudoku 9×9** | Sustained logical reasoning |
 
 ## 5. Shared experience layer
 - **Home** — big colourful tiles, three tabs: *Arcade*, *Brain Gym* and *Brain Lab*; a search-free grid on phones.
