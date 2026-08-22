@@ -2,7 +2,7 @@
 
 A bright little patch of playground on the web: classic arcade games and brain-teasers for children, playable on phones, tablets and desktops. Installable as a PWA and fully playable offline. No ads, no accounts, no chat — progress stays on the device.
 
-Read the full product story in [docs/PRODUCT_STORY.md](docs/PRODUCT_STORY.md).
+Read the full product story in [docs/PRODUCT_STORY.md](docs/PRODUCT_STORY.md). How it ships (Vercel + GitHub Actions) is in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Run it
 

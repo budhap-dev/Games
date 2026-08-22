@@ -6,3 +6,4 @@
 - Put game rules in a pure `logic.ts` next to the component with a `logic.test.ts`. Real-time games use `useGameLoop` + `useCanvasSize`; direction input via `useDirectionInput` (+ `<DPad>` for touch).
 - Commands: `npm run dev`, `npm test`, `npm run build` (runs `tsc -b` first — keep it type-clean; `noUnusedLocals` is on).
 - Styling is plain CSS with tokens in src/app/styles.css (light + dark via prefers-color-scheme). Fonts: Fredoka (display), Nunito (body). Touch targets ≥ 48px; in-game text ≥ 18px.
+- Deploys: Vercel GitHub integration (push to main → production https://games-work-0cc7.vercel.app, PRs → previews); GitHub Actions CI only runs test+build and does not deploy. Details and verification commands: docs/DEPLOYMENT.md.
