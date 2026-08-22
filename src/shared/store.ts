@@ -3,6 +3,8 @@ import { persist } from 'zustand/middleware'
 
 export type Difficulty = 'easy' | 'normal' | 'hard'
 export type Category = 'arcade' | 'brain' | 'teen'
+export type Theme = 'system' | 'light' | 'dark'
+export type Palette = 'classic' | 'ocean' | 'candy' | 'jungle' | 'space'
 
 export interface GameResult {
   gameId: string
@@ -25,6 +27,10 @@ interface State {
   puzzlesByDay: Record<string, number> // date -> solved
   stickers: string[]
   favs: string[]
+  theme: Theme
+  palette: Palette
+  setTheme: (t: Theme) => void
+  setPalette: (p: Palette) => void
   toggleFav: (gameId: string) => void
   setSound: (v: boolean) => void
   setReducedMotion: (v: boolean) => void
@@ -48,12 +54,16 @@ const initial = {
   puzzlesByDay: {},
   stickers: [],
   favs: [],
+  theme: 'system' as Theme,
+  palette: 'classic' as Palette,
 }
 
 export const useStore = create<State>()(
   persist(
     (set, get) => ({
       ...initial,
+      setTheme: (theme) => set({ theme }),
+      setPalette: (palette) => set({ palette }),
       toggleFav: (gameId) => set((s) => ({ favs: s.favs.includes(gameId) ? s.favs.filter((g) => g !== gameId) : [...s.favs, gameId] })),
       setSound: (sound) => set({ sound }),
       setReducedMotion: (reducedMotion) => set({ reducedMotion }),
@@ -85,7 +95,7 @@ export const useStore = create<State>()(
         set((s) => ({ stickers: [...s.stickers, id] }))
         return true
       },
-      resetAll: () => set({ ...initial, sound: get().sound, reducedMotion: get().reducedMotion, favs: get().favs }),
+      resetAll: () => set({ ...initial, sound: get().sound, reducedMotion: get().reducedMotion, favs: get().favs, theme: get().theme, palette: get().palette }),
     }),
     { name: 'playpatch-v1' },
   ),

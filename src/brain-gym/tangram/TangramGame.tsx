@@ -76,7 +76,7 @@ export default function TangramGame({ difficulty, paused, onScore, onEnd }: Game
           <polygon key={`t-${p.id}`} className="target" points={p.pts.map((pt) => toSvg(pt, fig.targets[p.id])).join(' ')} style={showOutlines ? undefined : { stroke: 'none' }} />
         ))}
         {!showOutlines && PIECES.map((p) => (
-          <polygon key={`o-${p.id}`} points={p.pts.map((pt) => toSvg(pt, fig.targets[p.id])).join(' ')} fill="rgba(29,33,64,.12)" stroke="none" />
+          <polygon key={`o-${p.id}`} points={p.pts.map((pt) => toSvg(pt, fig.targets[p.id])).join(' ')} fill="var(--line)" stroke="none" />
         ))}
         {order.map((p) => (
           <polygon
