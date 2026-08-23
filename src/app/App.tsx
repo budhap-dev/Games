@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useCloudSync } from '@/shared/useCloudSync'
 import { Account } from './Account'
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '@/shared/store'
 import { Themes } from './Themes'
 import { Home } from './Home'
@@ -13,7 +13,13 @@ export default function App() {
   const theme = useStore((s) => s.theme)
   const palette = useStore((s) => s.palette)
   const [welcome, setWelcome] = useState<string | null>(null)
-  useCloudSync((name) => { setWelcome(name); window.setTimeout(() => setWelcome(null), 3500) })
+  const nav = useNavigate()
+  const loc = useLocation()
+  useCloudSync((name) => {
+    setWelcome(name); window.setTimeout(() => setWelcome(null), 4000)
+    // after signing in, go back to the games (the Account page only exists to sign in/out)
+    if (loc.pathname === '/account') nav('/', { replace: true })
+  })
   useEffect(() => {
     const el = document.documentElement
     if (theme === 'system') delete el.dataset.theme; else el.dataset.theme = theme

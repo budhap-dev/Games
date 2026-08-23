@@ -44,6 +44,7 @@ export function Home() {
         <Link className="btn icon" to="/grown-ups" aria-label="Grown-ups corner">🔒</Link>
       </header>
       <main className="page">
+        {user && <p className="muted" style={{ margin: '0 0 10px', fontFamily: 'var(--display)', fontWeight: 600 }}>👋 Welcome, {user.name}! Your progress is saved to your account.</p>}
         <div className="tabs" role="tablist">
           <button role="tab" className="tab" aria-selected={tab === 'arcade'} onClick={() => { sfx.unlock(); sfx.tap(); setTab('arcade') }}>🕹️ Arcade</button>
           <button role="tab" className="tab" aria-selected={tab === 'brain'} onClick={() => { sfx.unlock(); sfx.tap(); setTab('brain') }}>🧠 Brain Gym</button>

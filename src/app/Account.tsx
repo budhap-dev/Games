@@ -8,7 +8,15 @@ export function Account() {
   const user = useStore((s) => s.user)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
-  const signIn = async () => { setBusy(true); setErr(null); try { sfx.tap(); await signInWithGoogle() } catch { setErr('Sign-in didn’t work — check your connection and try again.') } finally { setBusy(false) } }
+  const signIn = async () => {
+    setBusy(true); setErr(null)
+    try { sfx.tap(); await signInWithGoogle() }
+    catch (e) {
+      const code = (e as { code?: string }).code ?? ''
+      const why = code === 'auth/unauthorized-domain' ? 'this website isn’t on the Firebase authorised-domains list' : code === 'auth/popup-blocked' ? 'the browser blocked the pop-up' : code === 'auth/network-request-failed' ? 'no connection' : code.replace('auth/', '').replace(/-/g, ' ')
+      setErr(`Sign-in didn’t work${why ? ` — ${why}` : ''}. Please try again.`)
+    } finally { setBusy(false) }
+  }
   return (
     <>
       <header className="topbar">
