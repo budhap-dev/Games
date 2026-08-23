@@ -1,4 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useCloudSync } from '@/shared/useCloudSync'
+import { Account } from './Account'
 import { Route, Routes } from 'react-router-dom'
 import { useStore } from '@/shared/store'
 import { Themes } from './Themes'
@@ -10,6 +12,8 @@ import { StickerBook } from './StickerBook'
 export default function App() {
   const theme = useStore((s) => s.theme)
   const palette = useStore((s) => s.palette)
+  const [welcome, setWelcome] = useState<string | null>(null)
+  useCloudSync((name) => { setWelcome(name); window.setTimeout(() => setWelcome(null), 3500) })
   useEffect(() => {
     const el = document.documentElement
     if (theme === 'system') delete el.dataset.theme; else el.dataset.theme = theme
@@ -17,12 +21,14 @@ export default function App() {
   }, [theme, palette])
   return (
     <div className="app">
+      {welcome && <div className="toast" role="status">👋 Welcome, {welcome}!</div>}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/play/:id" element={<GamePage />} />
         <Route path="/stickers" element={<StickerBook />} />
         <Route path="/grown-ups" element={<GrownUps />} />
         <Route path="/themes" element={<Themes />} />
+        <Route path="/account" element={<Account />} />
         <Route path="*" element={<Home />} />
       </Routes>
     </div>

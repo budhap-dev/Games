@@ -14,7 +14,7 @@ const CONFIG = {
 const ALL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 const CHEERS = ['Rock on!', 'Nice!', 'Boom!', 'Encore!', 'On fire 🔥', 'Smashing it!']
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '⌫', '0', '✓']
-const fmt = (sec: number | null) => (sec === null ? '–' : `${sec.toFixed(1)}s`)
+const fmt = (sec: number | null) => (sec === null ? '–' : `${sec.toFixed(2)}s`)
 
 /** Timer lives in its own component so the 10×/s tick never re-renders the keypad/question. */
 const Timer = memo(function Timer({ totalMs, paused, onExpire }: { totalMs: number; paused: boolean; onExpire: () => void }) {
@@ -88,18 +88,18 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
     // session per-table
     const byTable = new Map<number, { ok: number; n: number; ms: number }>()
     for (const l of S.log) { const t = l.key.includes('x') ? Number(l.key.split('x')[0]) : Number(l.key.split('/')[1]); const e = byTable.get(t) ?? { ok: 0, n: 0, ms: 0 }; e.n++; if (l.ok) { e.ok++; e.ms += l.ms } byTable.set(t, e) }
-    const tableLine = [...byTable.entries()].sort((a, b) => a[0] - b[0]).map(([t, e]) => `${t}× ${e.ok}/${e.n}${e.ok ? ` · ${(e.ms / e.ok / 1000).toFixed(1)}s` : ''}`).join('  ')
+    const tableLine = [...byTable.entries()].sort((a, b) => a[0] - b[0]).map(([t, e]) => `${t}× ${e.ok}/${e.n}${e.ok ? ` · ${(e.ms / e.ok / 1000).toFixed(2)}s` : ''}`).join('  ')
     setTimeout(() => onEnd({
       score: c, won: c >= 15,
       message: `${status.emoji} ${status.name}!`, emoji: '🎸',
       details: [
         `${c} correct out of ${n} · ${n ? Math.round((c / n) * 100) : 0}% accuracy`,
-        c ? `Average ${avg.toFixed(1)}s per correct answer this session` : 'No answers this time — try again!',
+        c ? `Average ${avg.toFixed(2)}s per correct answer this session` : 'No answers this time — try again!',
         all.correct ? `All time: ${all.correct}/${all.answered} correct · average ${fmt(all.avgOkSec)} per correct answer` : '',
         tableLine ? `By table: ${tableLine}` : '',
         weak.length ? `Practise: ${weak.map((w) => w.text).join(' · ')}` : '',
       ].filter(Boolean),
-      list: S.log.map((l) => ({ label: `${l.text} = ${l.answer}`, value: l.ok ? `${(l.ms / 1000).toFixed(1)}s · avg ${fmt(avgCorrectSec(S.stats[l.key]))}` : '✗', ok: l.ok })),
+      list: S.log.map((l) => ({ label: `${l.text} = ${l.answer}`, value: l.ok ? `${(l.ms / 1000).toFixed(2)}s · avg ${fmt(avgCorrectSec(S.stats[l.key]))}` : '✗', ok: l.ok })),
     }), 350)
   }, [facts, onEnd, store])
 

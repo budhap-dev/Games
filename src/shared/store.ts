@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import type { AuthUser } from './auth'
 
 export type Difficulty = 'easy' | 'normal' | 'hard'
 export type Category = 'arcade' | 'brain' | 'teen'
@@ -29,6 +30,10 @@ interface State {
   favs: string[]
   theme: Theme
   palette: Palette
+  user: AuthUser | null
+  setUser: (u: AuthUser | null) => void
+  /** Replace progress fields with a merged copy (cloud sync). */
+  applyProgress: (p: Partial<Pick<State, 'best' | 'plays' | 'wins' | 'playSeconds' | 'puzzlesByDay' | 'stickers' | 'favs' | 'difficulty'>>) => void
   setTheme: (t: Theme) => void
   setPalette: (p: Palette) => void
   toggleFav: (gameId: string) => void
@@ -56,12 +61,15 @@ const initial = {
   favs: [],
   theme: 'system' as Theme,
   palette: 'classic' as Palette,
+  user: null as AuthUser | null,
 }
 
 export const useStore = create<State>()(
   persist(
     (set, get) => ({
       ...initial,
+      setUser: (user) => set({ user }),
+      applyProgress: (p) => set(p as Partial<State>),
       setTheme: (theme) => set({ theme }),
       setPalette: (palette) => set({ palette }),
       toggleFav: (gameId) => set((s) => ({ favs: s.favs.includes(gameId) ? s.favs.filter((g) => g !== gameId) : [...s.favs, gameId] })),
@@ -97,7 +105,7 @@ export const useStore = create<State>()(
       },
       resetAll: () => set({ ...initial, sound: get().sound, reducedMotion: get().reducedMotion, favs: get().favs, theme: get().theme, palette: get().palette }),
     }),
-    { name: 'playpatch-v1' },
+    { name: 'playpatch-v1', partialize: (s) => Object.fromEntries(Object.entries(s).filter(([k]) => k !== 'user')) as State },
   ),
 )
 
