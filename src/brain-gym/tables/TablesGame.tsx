@@ -64,7 +64,7 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
   const [correctN, setCorrectN] = useState(0)
   // mutable session state (no re-renders)
   const st = useRef({ fact: null as Fact | null, upNext: null as Fact | null, typed: '', correct: 0, asked: 0, okMs: 0, qStart: 0, streak: 0, lock: false, ended: false,
-    log: [] as { key: string; text: string; answer: number; ok: boolean; ms: number }[], stats: store.stats })
+    log: [] as { key: string; text: string; answer: number; given: string; ok: boolean; ms: number }[], stats: store.stats })
   const pausedRef = useRef(paused); pausedRef.current = paused
 
   const next = useCallback((last: string | null) => {
@@ -99,7 +99,7 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
         tableLine ? `By table: ${tableLine}` : '',
         weak.length ? `Practise: ${weak.map((w) => w.text).join(' · ')}` : '',
       ].filter(Boolean),
-      list: S.log.map((l) => ({ label: `${l.text} = ${l.answer}`, value: l.ok ? `${(l.ms / 1000).toFixed(2)}s · avg ${fmt(avgCorrectSec(S.stats[l.key]))}` : '✗', ok: l.ok })),
+      list: S.log.map((l) => ({ label: `${l.text} = ${l.answer}`, value: l.ok ? `${(l.ms / 1000).toFixed(2)}s · avg ${fmt(avgCorrectSec(S.stats[l.key]))}` : `✗ you put ${l.given}`, ok: l.ok })),
     }), 350)
   }, [facts, onEnd, store])
 
@@ -110,7 +110,7 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
     const ms = performance.now() - S.qStart
     const ok = Number(value) === S.fact.answer
     S.asked++
-    S.log.push({ key: S.fact.key, text: S.fact.text, answer: S.fact.answer, ok, ms })
+    S.log.push({ key: S.fact.key, text: S.fact.text, answer: S.fact.answer, given: value, ok, ms })
     S.stats = record(S.stats, S.fact.key, ok, ms)
     if (ok) {
       S.correct++; S.okMs += ms; S.streak++
