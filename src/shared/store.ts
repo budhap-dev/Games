@@ -30,12 +30,15 @@ interface State {
   favs: string[]
   theme: Theme
   palette: Palette
+  /** Game open right now; cleared when leaving it in-app, so it survives only if the app is closed mid-game. */
+  lastGame: string | null
   user: AuthUser | null
   setUser: (u: AuthUser | null) => void
   /** Replace progress fields with a merged copy (cloud sync). */
   applyProgress: (p: Partial<Pick<State, 'best' | 'plays' | 'wins' | 'playSeconds' | 'puzzlesByDay' | 'stickers' | 'favs' | 'difficulty'>>) => void
   setTheme: (t: Theme) => void
   setPalette: (p: Palette) => void
+  setLastGame: (id: string | null) => void
   toggleFav: (gameId: string) => void
   setSound: (v: boolean) => void
   setReducedMotion: (v: boolean) => void
@@ -61,6 +64,7 @@ const initial = {
   favs: [],
   theme: 'system' as Theme,
   palette: 'classic' as Palette,
+  lastGame: null as string | null,
   user: null as AuthUser | null,
 }
 
@@ -72,6 +76,7 @@ export const useStore = create<State>()(
       applyProgress: (p) => set(p as Partial<State>),
       setTheme: (theme) => set({ theme }),
       setPalette: (palette) => set({ palette }),
+      setLastGame: (lastGame) => set({ lastGame }),
       toggleFav: (gameId) => set((s) => ({ favs: s.favs.includes(gameId) ? s.favs.filter((g) => g !== gameId) : [...s.favs, gameId] })),
       setSound: (sound) => set({ sound }),
       setReducedMotion: (reducedMotion) => set({ reducedMotion }),

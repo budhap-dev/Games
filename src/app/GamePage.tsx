@@ -37,6 +37,13 @@ export function GamePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
+  // Remember the open game so reopening the app comes back here; leaving it in-app (🏠, back) forgets it.
+  useEffect(() => {
+    if (!game?.ready) return
+    useStore.getState().setLastGame(game.id)
+    return () => useStore.getState().setLastGame(null)
+  }, [game])
+
   const Game = useMemo(() => (game?.load ? lazy(game.load) : null), [game])
 
   // Track play time while playing

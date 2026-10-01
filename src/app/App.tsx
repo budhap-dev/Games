@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useCloudSync } from '@/shared/useCloudSync'
 import { Account } from './Account'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '@/shared/store'
 import { Themes } from './Themes'
 import { Home } from './Home'
+import { getGame } from '@/games/registry'
 import { GamePage } from './GamePage'
 import { GrownUps } from './GrownUps'
 import { StickerBook } from './StickerBook'
@@ -20,6 +21,15 @@ export default function App() {
     // after signing in, go back to the games (the Account page only exists to sign in/out)
     if (loc.pathname === '/account') nav('/', { replace: true })
   })
+  // The app was closed (or killed by the phone) mid-game → reopen into that game, not Home.
+  const resumed = useRef(false)
+  useEffect(() => {
+    if (resumed.current) return
+    resumed.current = true
+    const last = useStore.getState().lastGame
+    if (loc.pathname === '/' && last && getGame(last)?.ready) nav(`/play/${last}`)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   useEffect(() => {
     const el = document.documentElement
     if (theme === 'system') delete el.dataset.theme; else el.dataset.theme = theme
