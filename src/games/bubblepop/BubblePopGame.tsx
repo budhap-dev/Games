@@ -8,9 +8,9 @@ import { sfx } from '@/shared/audio'
 
 const COLORS = ['#ff5fa2', '#2d9cdb', '#ffc93c', '#3fb55b', '#7b4fd6', '#ff7a1a']
 const CONFIG = {
-  easy: { cols: 8, rows: 4, colours: 4, shotsPerRow: 8, maxRows: 11, match: 2 },
-  normal: { cols: 9, rows: 5, colours: 5, shotsPerRow: 6, maxRows: 12, match: 2 },
-  hard: { cols: 10, rows: 6, colours: 6, shotsPerRow: 5, maxRows: 12, match: 3 },
+  easy: { cols: 8, rows: 4, colours: 4, shotsPerRow: 12, maxRows: 8, match: 2 },
+  normal: { cols: 9, rows: 5, colours: 5, shotsPerRow: 8, maxRows: 9, match: 2 },
+  hard: { cols: 10, rows: 6, colours: 6, shotsPerRow: 6, maxRows: 10, match: 3 },
 }
 
 interface Shot { x: number; y: number; vx: number; vy: number; col: number }
@@ -159,7 +159,7 @@ export default function BubblePopGame({ difficulty, paused, onScore, onEnd }: Ga
     ctx.fillStyle = '#1d2140'; ctx.beginPath(); ctx.arc(sx, sy, r * 1.25, 0, Math.PI * 2); ctx.fill()
     if (!endedRef.current) drawBubble(sx, sy, current.current)
     drawBubble(sx + r * 3.2, sy + r * 0.2, next.current, r * 0.6)
-    ctx.fillStyle = '#1d2140'; ctx.font = `bold ${r * 0.8}px 'Plus Jakarta Sans', sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+    ctx.fillStyle = '#1d2140'; ctx.font = `bold ${Math.max(18, r * 0.8)}px 'Plus Jakarta Sans', sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
     ctx.fillText('next', sx + r * 3.2, sy - r * 0.9)
     if (shot.current) drawBubble(shot.current.x, shot.current.y, shot.current.col)
   }

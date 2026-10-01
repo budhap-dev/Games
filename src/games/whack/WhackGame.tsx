@@ -13,7 +13,6 @@ export default function WhackGame({ difficulty, paused, onScore, onEnd }: GamePr
   const [score, setScore] = useState(0)
   const [left, setLeft] = useState(ROUND_MS)
   const ended = useRef(false)
-  const pausedRef = useRef(paused); pausedRef.current = paused
 
   // countdown timer
   useEffect(() => {
@@ -31,24 +30,25 @@ export default function WhackGame({ difficulty, paused, onScore, onEnd }: GamePr
   }, [left, score, onEnd])
 
   // mole spawner
+  const upRef = useRef(up); upRef.current = up
   useEffect(() => {
     if (paused || ended.current) return
-    let alive = true
     const timers: number[] = []
+    const hideT: Record<number, number> = {}
     const spawn = () => {
-      if (!alive || pausedRef.current) return
-      setUp((cur) => {
-        if (cur.size >= cfg.max) return cur
+      const cur = upRef.current
+      if (cur.size < cfg.max) {
         const free = Array.from({ length: HOLES }, (_, i) => i).filter((i) => !cur.has(i))
         const h = free[Math.floor(Math.random() * free.length)]
-        const n = new Set(cur); n.add(h)
-        timers.push(window.setTimeout(() => setUp((c) => { const m = new Set(c); m.delete(h); return m }), cfg.upMs))
-        return n
-      })
+        setUp((c) => (c.has(h) ? c : new Set(c).add(h)))
+        clearTimeout(hideT[h])
+        hideT[h] = window.setTimeout(() => setUp((c) => { const m = new Set(c); m.delete(h); return m }), cfg.upMs)
+      }
       timers.push(window.setTimeout(spawn, cfg.gapMs + Math.random() * cfg.gapMs))
     }
     timers.push(window.setTimeout(spawn, 400))
-    return () => { alive = false; timers.forEach(clearTimeout) }
+    // moles that were up hide on pause (their hide timers are cleared), so none get stuck after resuming
+    return () => { timers.forEach(clearTimeout); Object.values(hideT).forEach(clearTimeout); setUp(new Set()) }
   }, [paused, cfg])
 
   const whack = (i: number) => {
@@ -65,7 +65,7 @@ export default function WhackGame({ difficulty, paused, onScore, onEnd }: GamePr
 
   return (
     <>
-      <div className="row" style={{ width: 'min(100%, 62vh, 480px)', justifyContent: 'space-between' }}>
+      <div className="row" style={{ width: 'min(100%, calc(62 * var(--vh)), 480px)', justifyContent: 'space-between' }}>
         <div className="turn">⏱ {Math.ceil(left / 1000)}s</div>
         <div className="turn">🐹 {score}</div>
       </div>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import type { GameProps } from '../types'
 import { createBricks, stepBall } from './logic'
 import type { Ball, Brick, Paddle } from './logic'
@@ -23,7 +23,7 @@ export default function BricksGame({ difficulty, paused, onScore, onEnd }: GameP
   const ball = useRef<Ball>({ x: 0.5, y: 0.88, vx: 0, vy: 0, r: 0.018 })
   const launched = useRef(false)
   const keys = useRef({ left: false, right: false })
-  const [lives, setLives] = useState(cfg.lives)
+  const lives = useRef(cfg.lives)
   const score = useRef(0)
   const ended = useRef(false)
 
@@ -77,15 +77,13 @@ export default function BricksGame({ difficulty, paused, onScore, onEnd }: GameP
       sfx.bad()
       launched.current = false
       b.vx = 0; b.vy = 0
-      setLives((l) => {
-        const n = l - 1
-        if (n <= 0) {
-          ended.current = true
-          const broken = bricks.current.filter((x) => !x.alive).length
-          setTimeout(() => onEnd({ score: broken, won: false, message: `Good try! ${broken} bricks smashed`, emoji: '🏓' }), 500)
-        }
-        return n
-      })
+      const n = lives.current - 1
+      lives.current = n
+      if (n <= 0) {
+        ended.current = true
+        const broken = bricks.current.filter((x) => !x.alive).length
+        setTimeout(() => onEnd({ score: broken, won: false, message: `Good try! ${broken} bricks smashed`, emoji: '🏓' }), 500)
+      }
     }
   }
 
@@ -106,9 +104,9 @@ export default function BricksGame({ difficulty, paused, onScore, onEnd }: GameP
     const b = ball.current
     ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(b.x * size, b.y * size, b.r * size, 0, Math.PI * 2); ctx.fill()
     ctx.font = `${size * 0.05}px serif`; ctx.textAlign = 'left'; ctx.textBaseline = 'top'
-    ctx.fillText('❤️'.repeat(Math.max(0, lives)), 10, 8)
+    ctx.fillText('❤️'.repeat(Math.max(0, lives.current)), 10, 8)
     if (!launched.current && !ended.current) {
-      ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.font = `bold ${size * 0.05}px 'Plus Jakarta Sans', sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+      ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.font = `bold ${Math.max(18, size * 0.05)}px 'Plus Jakarta Sans', sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
       ctx.fillText('Tap to launch!', size / 2, size * 0.6)
     }
   }

@@ -32,13 +32,12 @@ export default function QuickMathsGame({ difficulty, paused, onScore, onEnd }: G
 
   useEffect(() => {
     if (!timed || paused || picked !== null) return
-    const t = setInterval(() => setLeft((l) => {
-      if (l <= 250) { clearInterval(t); choose(null); return 0 }
-      return l - 250
-    }), 250)
+    const t = setInterval(() => setLeft((l) => Math.max(0, l - 250)), 250)
     return () => clearInterval(t)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timed, paused, picked, i])
+  // time's up → answer outside the state updater (StrictMode double-runs updaters, which ended the game twice)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (timed && left === 0 && picked === null) choose(null) }, [left, paused])
 
   return (
     <>

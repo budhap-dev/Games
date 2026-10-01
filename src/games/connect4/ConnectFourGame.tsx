@@ -49,7 +49,7 @@ export default function ConnectFourGame({ difficulty, paused, onScore, onEnd }: 
   return (
     <>
       {!started && (
-        <div className="seg" role="group" aria-label="Who to play">
+        <div className="seg" role="group" aria-label="Who to play" style={{ width: 'min(100%, 320px)' }}>
           <button aria-pressed={mode === 'robot'} onClick={() => { sfx.tap(); setMode('robot') }}>🤖 Robot</button>
           <button aria-pressed={mode === 'friend'} onClick={() => { sfx.tap(); setMode('friend') }}>🧑‍🤝‍🧑 Friend</button>
         </div>

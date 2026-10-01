@@ -15,6 +15,7 @@ export default function MemoryGame({ difficulty, paused, onScore, onEnd }: GameP
   const cfg = CONFIG[difficulty]
   const cards = useMemo(() => shuffle(shuffle(EMOJI).slice(0, cfg.pairs).flatMap((e) => [e, e])), [cfg.pairs])
   const [open, setOpen] = useState<number[]>([])
+  const openRef = useRef<number[]>([])
   const [matched, setMatched] = useState<Set<number>>(new Set())
   const [flips, setFlips] = useState(0)
   const [lock, setLock] = useState(false)
@@ -35,23 +36,24 @@ export default function MemoryGame({ difficulty, paused, onScore, onEnd }: GameP
           setTimeout(() => onEnd({ score: m.size / 2, won: true, message: `All pairs in ${flips} flips!`, emoji: '🦊', steps: st, stepsTitle: 'Your flips' }), 500)
         }
       }
-      setOpen([]); setLock(false)
+      openRef.current = []; setOpen([]); setLock(false)
     }, cards[a] === cards[b] ? 350 : 800)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
   const flip = (i: number) => {
-    if (lock || paused || open.includes(i) || matched.has(i)) return
+    const o = openRef.current
+    if (lock || paused || o.length >= 2 || o.includes(i) || matched.has(i)) return
     sfx.flip()
     setFlips((f) => f + 1)
-    setOpen((o) => [...o, i])
+    openRef.current = [...o, i]; setOpen(openRef.current)
   }
 
   return (
     <>
       <div className="turn">🔄 {flips} flips</div>
-      <div className="board" style={{ gridTemplateColumns: `repeat(${cfg.cols}, 1fr)`, width: cfg.cols === 5 ? 'min(100%, 75vh, 560px)' : undefined }}>
+      <div className="board" style={{ gridTemplateColumns: `repeat(${cfg.cols}, 1fr)`, width: cfg.cols === 5 ? 'min(100%, calc(75 * var(--vh)), 560px)' : undefined }}>
         {cards.map((e, i) => {
           const up = open.includes(i) || matched.has(i)
           return (

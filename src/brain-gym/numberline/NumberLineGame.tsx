@@ -52,7 +52,7 @@ export default function NumberLineGame({ difficulty, paused, onScore, onEnd }: G
         {guess !== null && <text className="nl-flag" x={xOf(round.target)} y={Y - 12}>🚩</text>}
         <text className="nl-frog" x={0} y={Y - 14} style={{ transform: `translateX(${frogX}px)` }}>🐸</text>
       </svg>
-      <div className="howto center" aria-live="polite" style={{ visibility: guess === null ? 'hidden' : 'visible' }}>
+      <div className="howto gym-tip center" aria-live="polite" style={{ visibility: guess === null ? 'hidden' : 'visible' }}>
         {got === 3 ? '⭐⭐⭐ Spot on!' : got === 2 ? '⭐⭐ So close!' : got === 1 ? '⭐ Nearly — the 🚩 shows where it goes' : '💡 The 🚩 shows where it goes'}
       </div>
     </>

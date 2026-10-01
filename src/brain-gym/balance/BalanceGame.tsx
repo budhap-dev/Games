@@ -76,12 +76,12 @@ export default function BalanceGame({ difficulty, paused, onScore, onEnd }: Game
         </g>
       </svg>
       {difficulty !== 'hard' && (
-        <div className={`howto center ${won !== null ? 'bal-ok' : ''}`} aria-live="polite">
+        <div className={`howto gym-tip center ${won !== null ? 'bal-ok' : ''}`} aria-live="polite">
           {won !== null ? `⚖️ Balanced! ${'⭐'.repeat(won)}` : <>Left pulls <b>{L}</b> · Right pulls <b>{R}</b> <span className="muted">(weight × peg)</span></>}
         </div>
       )}
-      {difficulty === 'hard' && won !== null && <div className="howto center bal-ok" aria-live="polite">⚖️ Balanced! {'⭐'.repeat(won)}</div>}
-      <div className="seg" role="group" aria-label="Pick a weight">
+      {difficulty === 'hard' && won !== null && <div className="howto gym-tip center bal-ok" aria-live="polite">⚖️ Balanced! {'⭐'.repeat(won)}</div>}
+      <div className="seg bal-tray" role="group" aria-label="Pick a weight">
         {round.tray.map((t) => <button key={t} aria-pressed={w === t} onClick={() => { sfx.tap(); setW(t) }}>🧱 {t}</button>)}
       </div>
       <div className="bal-pegs" role="group" aria-label="Put it on a right-hand peg">

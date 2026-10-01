@@ -10,21 +10,19 @@ const CONFIG = { easy: { pads: 4, onMs: 600, offMs: 250 }, normal: { pads: 4, on
 
 export default function SimonGame({ difficulty, paused, onScore, onEnd }: GameProps) {
   const cfg = CONFIG[difficulty]
-  const [seq, setSeq] = useState<number[]>([])
+  const [seq, setSeq] = useState<number[]>(() => [Math.floor(Math.random() * cfg.pads)])
   const [lit, setLit] = useState<number | null>(null)
   const [phase, setPhase] = useState<'show' | 'input' | 'done'>('show')
   const [pos, setPos] = useState(0)
   const timers = useRef<number[]>([])
   const steps = useRef<GameStep[]>([])
-  const pausedRef = useRef(paused); pausedRef.current = paused
 
-  // start / extend sequence and play it back
+  // play the sequence back (a pause mid-show replays it from the start)
   useEffect(() => {
     if (phase !== 'show' || paused) return
-    const next = [...seq, Math.floor(Math.random() * cfg.pads)]
-    setSeq(next); setPos(0)
+    setPos(0); setLit(null)
     let t = 500
-    next.forEach((p) => {
+    seq.forEach((p) => {
       timers.current.push(window.setTimeout(() => { setLit(p); sfx.note(p) }, t))
       timers.current.push(window.setTimeout(() => setLit(null), t + cfg.onMs))
       t += cfg.onMs + cfg.offMs
@@ -43,7 +41,8 @@ export default function SimonGame({ difficulty, paused, onScore, onEnd }: GamePr
         const rounds = seq.length
         steps.current.push({ move: `Round ${rounds}`, result: seq.map((n) => PADS[n].sq).join(''), ok: true })
         onScore(rounds); setPhase('done')
-        window.setTimeout(() => setPhase('show'), 700)
+        const n = Math.floor(Math.random() * cfg.pads)
+        window.setTimeout(() => { setSeq((q) => [...q, n]); setPhase('show') }, 700)
       } else setPos(pos + 1)
     } else {
       setPhase('done'); sfx.bad()

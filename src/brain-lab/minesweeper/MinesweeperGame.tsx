@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import type { GameProps } from '@/games/types'
 import { blank, isCleared, open, openCount, placeMines, toggleFlag } from './logic'
 import type { Board } from './logic'
@@ -24,10 +25,9 @@ export default function MinesweeperGame({ difficulty, paused, onScore, onEnd }: 
   }, [started, done, paused])
 
   const reveal = (i: number) => {
-    if (paused || done) return
+    if (paused || done || board[i].flag) return
     let b = board
-    if (!started) { b = placeMines(blank(shape), shape, cfg.mines, i); setStarted(true) }
-    if (b[i].flag) return
+    if (!started) { b = placeMines(board, shape, cfg.mines, i); setStarted(true) }
     const r = open(b, shape, i)
     setBoard(r.board)
     if (r.boom) {
@@ -48,20 +48,20 @@ export default function MinesweeperGame({ difficulty, paused, onScore, onEnd }: 
   const flagsLeft = cfg.mines - board.filter((c) => c.flag).length
   return (
     <>
-      <div className="row" style={{ width: 'min(100%, 64vh, 460px)', justifyContent: 'space-between' }}>
+      <div className="row" style={{ width: 'min(100%, calc(64 * var(--vh)), 460px)', justifyContent: 'space-between' }}>
         <div className="turn">🚩 {flagsLeft}</div>
         <button className={`btn ${flagMode ? 'sky' : ''}`} onClick={() => { sfx.tap(); setFlagMode((f) => !f) }} aria-pressed={flagMode}>{flagMode ? '🚩 Flag mode' : '👆 Reveal mode'}</button>
         <div className="turn">⏱ {secs}s</div>
       </div>
-      <div className="mines" style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(44px, 1fr))` }} role="grid" aria-label="Minesweeper board" onContextMenu={(e) => e.preventDefault()}>
+      <div className="mines" style={{ gridTemplateColumns: `repeat(${cfg.cols}, minmax(0, 1fr))`, '--cols': cfg.cols } as CSSProperties} role="grid" aria-label="Minesweeper board" onContextMenu={(e) => e.preventDefault()}>
         {board.map((c, i) => (
           <button
             key={i}
             className={`${c.open ? 'open' : ''} ${c.open && c.mine ? (done === 'boom' ? 'mine' : '') : ''} ${c.open && c.n ? `n${c.n}` : ''}`}
-            onPointerDown={() => { pressT.current = Date.now(); longPressed.current = false; window.setTimeout(() => { if (Date.now() - pressT.current >= 450 && pressT.current) { longPressed.current = true; flag(i) } }, 460) }}
-            onPointerUp={() => { const short = Date.now() - pressT.current < 450; pressT.current = 0; if (!short || longPressed.current) return; flagMode ? flag(i) : reveal(i) }}
+            onPointerDown={(e) => { longPressed.current = false; if (e.button !== 0) { pressT.current = 0; return } pressT.current = Date.now(); window.setTimeout(() => { if (Date.now() - pressT.current >= 450 && pressT.current) { longPressed.current = true; flag(i) } }, 460) }}
+            onPointerUp={(e) => { if (e.button !== 0) return; const short = Date.now() - pressT.current < 450; pressT.current = 0; if (!short || longPressed.current) return; flagMode ? flag(i) : reveal(i) }}
             onPointerLeave={() => { pressT.current = 0 }}
-            onContextMenu={(e) => { e.preventDefault(); flag(i) }}
+            onContextMenu={(e) => { e.preventDefault(); if (longPressed.current) return; pressT.current = 0; longPressed.current = true; flag(i) }}
             aria-label={c.open ? (c.mine ? 'mine' : c.n ? `${c.n}` : 'empty') : c.flag ? 'flag' : 'hidden'}
           >
             {c.open ? (c.mine ? '💣' : c.n || '') : c.flag ? '🚩' : ''}

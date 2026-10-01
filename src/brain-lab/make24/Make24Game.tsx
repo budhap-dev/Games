@@ -26,7 +26,7 @@ export default function Make24Game({ difficulty, paused, onScore, onEnd }: GameP
     else { setRound(round + 1); reset(makePuzzle(MAX[difficulty])) }
   }
   const pick = (i: number) => {
-    if (paused || nums[i] === null) return
+    if (paused || flash || nums[i] === null) return
     sfx.tap()
     if (a === null) { setA(i); return }
     if (a === i) { setA(null); return }
@@ -42,7 +42,7 @@ export default function Make24Game({ difficulty, paused, onScore, onEnd }: GameP
     }
   }
   const undo = () => { if (!hist.length) return; sfx.tap(); const h = hist[hist.length - 1]; setNums(h.n); setEx(h.e); setHist(hist.slice(0, -1)); setA(null); setOp(null) }
-  const skip = () => { if (flash?.startsWith('✅')) return; sfx.tap(); log.current = [...log.current, { move: puzzle.join(', '), result: `skipped · ${solution(puzzle)}`, ok: false }]; next(solved) }
+  const skip = () => { if (flash) return; sfx.tap(); log.current = [...log.current, { move: puzzle.join(', '), result: `skipped · ${solution(puzzle)}`, ok: false }]; next(solved) }
 
   return (
     <>

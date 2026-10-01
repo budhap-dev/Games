@@ -29,9 +29,10 @@ export default function CowsBullsGame({ difficulty, paused, onScore, onEnd }: Ga
       setTimeout(() => onEnd({ score: 0, won: false, message: `The number was ${secret}`, emoji: '🔒', steps, stepsTitle: 'Your guesses' }), 800)
     } else sfx.flip()
   }
+  const del = () => { if (paused || done) return; sfx.tap(); setCur((c) => c.slice(0, -1)) }
   const type = (d: string) => { if (paused || done || cur.length >= cfg.len || cur.includes(d)) { if (cur.includes(d)) sfx.bad(); return } sfx.tap(); setCur(cur + d) }
   useEffect(() => {
-    const h = (e: KeyboardEvent) => { if (/^\d$/.test(e.key)) type(e.key); else if (e.key === 'Backspace') setCur((c) => c.slice(0, -1)); else if (e.key === 'Enter') submit() }
+    const h = (e: KeyboardEvent) => { if (/^\d$/.test(e.key)) type(e.key); else if (e.key === 'Backspace') del(); else if (e.key === 'Enter') submit() }
     window.addEventListener('keydown', h); return () => window.removeEventListener('keydown', h)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cur, log, paused, done])
@@ -42,7 +43,7 @@ export default function CowsBullsGame({ difficulty, paused, onScore, onEnd }: Ga
       <div className={`cb-guess ${shake ? 'shake' : ''}`} aria-live="polite">{cur.padEnd(cfg.len, '_')}</div>
       <div className="numpad" aria-label="Number pad">
         {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map((d) => <button key={d} onClick={() => type(d)} disabled={cur.includes(d)}>{d}</button>)}
-        <button onClick={() => { sfx.tap(); setCur(cur.slice(0, -1)) }} aria-label="Delete">⌫</button>
+        <button onClick={del} aria-label="Delete">⌫</button>
         <button className="lime" style={{ gridColumn: 'span 4', background: 'var(--lime)', color: '#fff', borderColor: 'transparent' }} onClick={submit} aria-label="Guess">Guess ✓</button>
       </div>
       <div className="cows-log" aria-label="Previous guesses">
