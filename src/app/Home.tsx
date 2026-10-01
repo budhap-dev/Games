@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import type { CSSProperties } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import type { GameMeta } from '@/games/types'
@@ -17,9 +17,18 @@ const TABS: { id: Category; label: string; icon: IconName }[] = [
 ]
 const greeting = () => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening' }
 const READY = GAMES.filter((g) => g.ready).length
+// Where the list was scrolled to, so coming back from a game lands next to the tile you tapped
+let savedScroll = 0
 
 export function Home() {
-  const [tab, setTab] = useState<Category>('arcade')
+  const tab = useStore((s) => s.homeTab)
+  const setTab = useStore((s) => s.setHomeTab)
+  useLayoutEffect(() => { window.scrollTo(0, savedScroll) }, [])
+  useEffect(() => {
+    const onScroll = () => { savedScroll = window.scrollY }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
   const best = useStore((s) => s.best)
   const stickers = useStore((s) => s.stickers.length)
   const favs = useStore((s) => s.favs)
