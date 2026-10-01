@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { N, applyMove, count, initial, isOver, legalMoves, robotMove } from './logic'
+import { N, applyMove, count, initial, isOver, legalMoves, robotMove, square } from './logic'
 import type { Board } from './logic'
 
 const at = (r: number, c: number) => r * N + c
@@ -28,5 +28,8 @@ describe('reversi', () => {
     b[at(1, 1)] = 'b'; b[at(2, 2)] = 'w'; b[at(4, 4)] = 'b'; b[at(3, 3)] = 'w'; b[at(5, 5)] = 'w'
     expect(robotMove(b, 'w', 'hard')!.i).toBe(at(0, 0))
     expect(robotMove(b, 'w', 'normal')!.i).toBe(at(0, 0))
+  })
+  it('names squares a–h left to right, 8–1 top to bottom', () => {
+    expect(square(at(0, 0))).toBe('a8'); expect(square(at(7, 7))).toBe('h1'); expect(square(at(2, 3))).toBe('d6')
   })
 })

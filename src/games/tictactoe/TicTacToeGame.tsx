@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import type { GameProps } from '../types'
-import { isFull, robotMove, winner } from './logic'
+import { useEffect, useRef, useState } from 'react'
+import type { GameProps, GameStep } from '../types'
+import { isFull, robotMove, squareName, winner } from './logic'
 import type { Board, Mark } from './logic'
 import { sfx } from '@/shared/audio'
 
@@ -12,6 +12,7 @@ export default function TicTacToeGame({ difficulty, paused, onScore, onEnd }: Ga
   const [turn, setTurn] = useState<'X' | 'O'>('X')
   const [done, setDone] = useState(false)
   const [winLine, setWinLine] = useState<number[]>([])
+  const steps = useRef<GameStep[]>([])
 
   const finish = (b: Board) => {
     const w = winner(b)
@@ -19,16 +20,19 @@ export default function TicTacToeGame({ difficulty, paused, onScore, onEnd }: Ga
       setWinLine(w.line); setDone(true)
       const humanWon = mode === 'friend' || w.mark === 'X'
       onScore(humanWon ? 1 : 0)
+      const last = steps.current.length - 1
+      const st = steps.current.map((x, k) => k === last ? { ...x, result: '3 in a row!', ok: true } : x)
       setTimeout(() => onEnd({
         score: humanWon ? 1 : 0, won: humanWon,
         message: mode === 'friend' ? `${ICON[w.mark!]} wins!` : w.mark === 'X' ? 'You win!' : 'Robot wins this time!',
-        emoji: humanWon ? '🏆' : '🤖',
+        emoji: humanWon ? '🏆' : '🤖', steps: st, stepsTitle: 'Moves',
       }), 900)
       return true
     }
     if (isFull(b)) {
       setDone(true)
-      setTimeout(() => onEnd({ score: 0, won: false, message: "It's a draw!", emoji: '🤝' }), 700)
+      const st = [...steps.current]
+      setTimeout(() => onEnd({ score: 0, won: false, message: "It's a draw!", emoji: '🤝', steps: st, stepsTitle: 'Moves' }), 700)
       return true
     }
     return false
@@ -37,6 +41,7 @@ export default function TicTacToeGame({ difficulty, paused, onScore, onEnd }: Ga
   const place = (i: number, mark: Mark) => {
     const nb = board.slice(); nb[i] = mark
     setBoard(nb)
+    steps.current.push({ who: mode === 'friend' ? ICON[mark!] : mark === 'X' ? 'You' : 'Robot', move: squareName(i) })
     sfx.flip()
     if (!finish(nb)) setTurn(mark === 'X' ? 'O' : 'X')
   }

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import type { GameProps } from '../types'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import type { GameProps, GameStep } from '../types'
 import { sfx } from '@/shared/audio'
 
 const EMOJI = ['🐶', '🐱', '🐸', '🦊', '🐼', '🦁', '🐵', '🐰', '🦄', '🐙', '🐢', '🦋']
@@ -18,18 +18,21 @@ export default function MemoryGame({ difficulty, paused, onScore, onEnd }: GameP
   const [matched, setMatched] = useState<Set<number>>(new Set())
   const [flips, setFlips] = useState(0)
   const [lock, setLock] = useState(false)
+  const steps = useRef<GameStep[]>([])
 
   useEffect(() => {
     if (open.length !== 2) return
     const [a, b] = open
     setLock(true)
     const t = setTimeout(() => {
+      steps.current.push({ move: `${cards[a]} + ${cards[b]}`, result: cards[a] === cards[b] ? 'match!' : 'no match', ok: cards[a] === cards[b] })
       if (cards[a] === cards[b]) {
         const m = new Set(matched); m.add(a); m.add(b)
         setMatched(m); sfx.good()
         onScore(m.size / 2)
         if (m.size === cards.length) {
-          setTimeout(() => onEnd({ score: m.size / 2, won: true, message: `All pairs in ${flips} flips!`, emoji: '🦊' }), 500)
+          const st = [...steps.current]
+          setTimeout(() => onEnd({ score: m.size / 2, won: true, message: `All pairs in ${flips} flips!`, emoji: '🦊', steps: st, stepsTitle: 'Your flips' }), 500)
         }
       }
       setOpen([]); setLock(false)

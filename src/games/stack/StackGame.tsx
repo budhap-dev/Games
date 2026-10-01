@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import type { GameProps } from '../types'
+import type { GameProps, GameStep } from '../types'
 import { drop, slide } from './logic'
 import type { Block } from './logic'
 import { useGameLoop } from '@/shared/useGameLoop'
@@ -29,6 +29,7 @@ export default function StackGame({ difficulty, paused, onScore, onEnd }: GamePr
   const flash = useRef(0) // "Perfect!" fade
   const over = useRef(false)
   const started = useRef(false)
+  const steps = useRef<GameStep[]>([])
 
   const doDrop = () => {
     if (paused || over.current) return
@@ -40,10 +41,12 @@ export default function StackGame({ difficulty, paused, onScore, onEnd }: GamePr
     if (!r.placed) {
       over.current = true; sfx.bad()
       const s = stack.current.length - 1
-      setTimeout(() => onEnd({ score: s, won: s >= 10, message: s === 0 ? 'Whoops! Try again?' : s < 10 ? `${s} blocks high — nice building!` : `Wow, a tower ${s} blocks tall!`, emoji: '🏗️' }), 900)
+      const st = [...steps.current, { move: `Block ${level}`, result: 'missed', ok: false }]
+      setTimeout(() => onEnd({ score: s, won: s >= 10, message: s === 0 ? 'Whoops! Try again?' : s < 10 ? `${s} blocks high — nice building!` : `Wow, a tower ${s} blocks tall!`, emoji: '🏗️', steps: st }), 900)
       return
     }
     stack.current.push(r.placed)
+    steps.current.push(r.perfect ? { move: `Block ${level}`, result: 'Perfect!', ok: true } : { move: `Block ${level}`, result: `trimmed ${Math.max(1, Math.round((r.cut!.w / moving.current.w) * 100))}%` })
     onScore(stack.current.length - 1)
     if (r.perfect) { sfx.pop(); flash.current = 1 } else sfx.tap()
     const dir = level % 2 ? -1 : 1

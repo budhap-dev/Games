@@ -4,6 +4,8 @@ export type Board = (Side | null)[]
 export interface Move { i: number; flips: number[] }
 
 const DIRS = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
+/** Board index → square name: columns a–h left→right, rows 8→1 top→bottom. */
+export const square = (i: number) => 'abcdefgh'[i % N] + (N - Math.floor(i / N))
 export const other = (s: Side): Side => (s === 'b' ? 'w' : 'b')
 
 export function initial(): Board {

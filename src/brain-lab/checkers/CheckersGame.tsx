@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import type { GameProps } from '@/games/types'
-import { N, applyMove, countSide, initial, legalMoves, robotMove, sideOf, winner } from './logic'
+import { useEffect, useRef, useState } from 'react'
+import type { GameProps, GameStep } from '@/games/types'
+import { N, applyMove, countSide, initial, legalMoves, moveName, robotMove, sideOf, winner } from './logic'
 import type { Board, Move } from './logic'
 import { sfx } from '@/shared/audio'
 
@@ -12,6 +12,7 @@ export default function CheckersGame({ difficulty, paused, onScore, onEnd }: Gam
   const [sel, setSel] = useState<number | null>(null)
   const [last, setLast] = useState<number[]>([])
   const [done, setDone] = useState(false)
+  const log = useRef<GameStep[]>([])
   const moves = legalMoves(board, turn)
 
   const finish = (b: Board, next: 'r' | 'b') => {
@@ -20,12 +21,13 @@ export default function CheckersGame({ difficulty, paused, onScore, onEnd }: Gam
     setDone(true)
     const won = w === 'r'
     onScore(won ? 1 : 0)
-    setTimeout(() => onEnd({ score: won ? 1 : 0, won, message: won ? 'You win! King of the board 👑' : 'The robot wins this one', emoji: won ? '🏆' : '🤖' }), 900)
+    setTimeout(() => onEnd({ score: won ? 1 : 0, won, message: won ? 'You win! King of the board 👑' : 'The robot wins this one', emoji: won ? '🏆' : '🤖', steps: log.current, stepsTitle: 'Moves' }), 900)
     return true
   }
   const play = (m: Move) => {
     const nb = applyMove(board, m)
     setBoard(nb); setLast(m.path); setSel(null)
+    log.current = [...log.current, { who: turn === 'r' ? 'You' : 'Robot', move: moveName(m) }]
     m.captures.length ? sfx.pop() : sfx.flip()
     const next = turn === 'r' ? 'b' : 'r'
     if (!finish(nb, next)) setTurn(next)

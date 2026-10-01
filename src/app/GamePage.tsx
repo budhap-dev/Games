@@ -178,6 +178,21 @@ export function GamePage() {
                     {end.list.map((it, i) => <li key={i} className={it.ok === false ? 'bad' : ''}><span>{it.label}</span><b>{it.value}</b></li>)}
                   </ul>
                 ) : null}
+                {end.steps?.length ? (
+                  <details className="end-steps" open>
+                    <summary>{end.stepsTitle ?? 'Your steps'} <small>{end.steps.length}</small></summary>
+                    <ol>
+                      {end.steps.map((st, i) => (
+                        <li key={i} className={st.ok === true ? 'ok' : st.ok === false ? 'bad' : ''} data-who={st.who} style={{ '--i': Math.min(i, 14) } as CSSProperties}>
+                          <span className="n">{i + 1}</span>
+                          {st.who && <span className="who">{st.who}</span>}
+                          <span className="mv">{st.move}</span>
+                          {st.result && <span className="res">{st.result}</span>}
+                        </li>
+                      ))}
+                    </ol>
+                  </details>
+                ) : null}
                 {newStickers.map((s) => (
                   <div key={s.id} className="howto" style={{ background: 'var(--sun-soft)' }}>
                     🎁 New sticker: <b>{s.emoji} {s.name}</b>

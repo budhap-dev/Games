@@ -43,3 +43,7 @@ export function robotMove(b: Board, me: 'X' | 'O', skill: 'easy' | 'normal' | 'h
   }
   return pick(moves)
 }
+
+const ROW_NAMES = ['top', 'middle', 'bottom'], COL_NAMES = ['left', 'middle', 'right']
+/** Square index → kid-friendly name: 0 → "top-left", 4 → "middle", 7 → "bottom-middle". */
+export const squareName = (i: number) => i === 4 ? 'middle' : `${ROW_NAMES[Math.floor(i / 3)]}-${COL_NAMES[i % 3]}`

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import type { GameProps } from '@/games/types'
-import { applyMove, count, initial, legalMoves, other, robotMove } from './logic'
+import { useEffect, useRef, useState } from 'react'
+import type { GameProps, GameStep } from '@/games/types'
+import { applyMove, count, initial, legalMoves, other, robotMove, square } from './logic'
 import type { Board, Move, Side } from './logic'
 import { sfx } from '@/shared/audio'
 
@@ -10,20 +10,23 @@ export default function ReversiGame({ difficulty, paused, onScore, onEnd }: Game
   const [last, setLast] = useState<number[]>([])
   const [note, setNote] = useState('')
   const [done, setDone] = useState(false)
+  const log = useRef<GameStep[]>([])
   const moves = legalMoves(board, turn)
   const hints = difficulty !== 'hard' && turn === 'b' ? moves.map((m) => m.i) : []
 
   const play = (m: Move) => {
     const nb = applyMove(board, m, turn)
     setBoard(nb); setLast([m.i, ...m.flips]); sfx.flip()
+    const who = (s: Side) => (s === 'b' ? 'You' : 'Robot')
+    log.current = [...log.current, { who: who(turn), move: square(m.i), result: `+${m.flips.length} flipped` }]
     onScore(count(nb, 'b'))
     const next = other(turn)
     if (legalMoves(nb, next).length) { setTurn(next); setNote(''); return }
-    if (legalMoves(nb, turn).length) { setNote(next === 'b' ? 'You have no move — the robot goes again' : 'The robot has no move — your turn again'); return }
+    if (legalMoves(nb, turn).length) { log.current = [...log.current, { who: who(next), move: 'Pass' }]; setNote(next === 'b' ? 'You have no move — the robot goes again' : 'The robot has no move — your turn again'); return }
     setDone(true)
     const me = count(nb, 'b'), bot = count(nb, 'w')
     const won = me > bot
-    setTimeout(() => onEnd({ score: me, won, message: won ? `You win ${me}–${bot}!` : me === bot ? `A draw, ${me}–${bot}` : `The robot wins ${bot}–${me}`, emoji: won ? '🏆' : me === bot ? '🤝' : '🤖' }), 900)
+    setTimeout(() => onEnd({ score: me, won, message: won ? `You win ${me}–${bot}!` : me === bot ? `A draw, ${me}–${bot}` : `The robot wins ${bot}–${me}`, emoji: won ? '🏆' : me === bot ? '🤝' : '🤖', steps: log.current, stepsTitle: 'Moves' }), 900)
   }
   useEffect(() => {
     if (turn !== 'w' || done || paused) return

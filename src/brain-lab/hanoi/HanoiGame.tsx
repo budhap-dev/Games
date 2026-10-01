@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import type { GameProps } from '@/games/types'
+import type { GameProps, GameStep } from '@/games/types'
 import { canMove, move, optimal, solved, start } from './logic'
 import { sfx } from '@/shared/audio'
 
 const N = { easy: 3, normal: 4, hard: 6 }
+const PEG = ['A', 'B', 'C']
 const COLORS = ['#ff5fa2', '#ff7a1a', '#ffc93c', '#3fb55b', '#2d9cdb', '#7b4fd6', '#2dbdb0']
 
 export default function HanoiGame({ difficulty, paused, onScore, onEnd }: GameProps) {
@@ -12,6 +13,7 @@ export default function HanoiGame({ difficulty, paused, onScore, onEnd }: GamePr
   const [sel, setSel] = useState<number | null>(null)
   const [moves, setMoves] = useState(0)
   const [done, setDone] = useState(false)
+  const [log, setLog] = useState<GameStep[]>([])
 
   const tap = (i: number) => {
     if (paused || done) return
@@ -20,10 +22,12 @@ export default function HanoiGame({ difficulty, paused, onScore, onEnd }: GamePr
     if (!canMove(pegs, sel, i)) { sfx.bad(); setSel(null); return }
     const p = move(pegs, sel, i); setPegs(p); setSel(null); sfx.flip()
     const m = moves + 1; setMoves(m)
-    if (solved(p, n)) {
+    const win = solved(p, n), opt = optimal(n)
+    const steps = [...log, { move: `Disc ${pegs[sel][pegs[sel].length - 1]}: ${PEG[sel]} → ${PEG[i]}`, ...(win && { result: `done in ${m} (best ${opt})`, ok: m === opt }) }]
+    setLog(steps)
+    if (win) {
       setDone(true); sfx.win(); onScore(1)
-      const opt = optimal(n)
-      setTimeout(() => onEnd({ score: 1, won: true, message: m === opt ? `Perfect! ${m} moves — the minimum!` : `Solved in ${m} moves (best possible: ${opt})`, emoji: '🗼' }), 600)
+      setTimeout(() => onEnd({ score: 1, won: true, message: m === opt ? `Perfect! ${m} moves — the minimum!` : `Solved in ${m} moves (best possible: ${opt})`, emoji: '🗼', steps, stepsTitle: 'Your moves' }), 600)
     }
   }
   return (

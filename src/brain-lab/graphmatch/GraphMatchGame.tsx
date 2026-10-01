@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import type { GameProps } from '@/games/types'
+import { useEffect, useRef, useState } from 'react'
+import type { GameProps, GameStep } from '@/games/types'
 import { formula, makeRound, roundPoints, same, yAt } from './logic'
 import type { Kind, Params, Slider } from './logic'
 import { sfx } from '@/shared/audio'
@@ -21,6 +21,7 @@ export default function GraphMatchGame({ difficulty, paused, onScore, onEnd }: G
   const [sec, setSec] = useState(0)
   const [total, setTotal] = useState(0)
   const [matched, setMatched] = useState<number | null>(null)
+  const log = useRef<GameStep[]>([])
 
   useEffect(() => {
     if (paused || matched !== null) return
@@ -35,9 +36,10 @@ export default function GraphMatchGame({ difficulty, paused, onScore, onEnd }: G
     if (!same(np, round.target)) return
     const pts = roundPoints(sec), t = total + pts
     setMatched(pts); setTotal(t); onScore(t); sfx.good()
+    log.current = [...log.current, { move: formula(round.kind, round.target), result: `${sec}s · +${pts}`, ok: pts === 10 }]
     setTimeout(() => {
       if (n >= ROUNDS) {
-        onEnd({ score: t, won: t >= 40, message: t === ROUNDS * 10 ? 'Graph genius — all lightning fast!' : `${t} points of ${ROUNDS * 10}`, emoji: '📈' })
+        onEnd({ score: t, won: t >= 40, message: t === ROUNDS * 10 ? 'Graph genius — all lightning fast!' : `${t} points of ${ROUNDS * 10}`, emoji: '📈', steps: log.current, stepsTitle: 'Your graphs' })
         return
       }
       const nr = makeRound(difficulty)

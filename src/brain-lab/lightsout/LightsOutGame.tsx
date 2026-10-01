@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { GameProps } from '@/games/types'
+import type { GameProps, GameStep } from '@/games/types'
 import { isOff, press, scramble } from './logic'
 import { sfx } from '@/shared/audio'
 
@@ -10,14 +10,16 @@ export default function LightsOutGame({ difficulty, paused, onScore, onEnd }: Ga
   const [lights, setLights] = useState(() => scramble(cfg.n, cfg.k))
   const [moves, setMoves] = useState(0)
   const [done, setDone] = useState(false)
+  const [log, setLog] = useState<GameStep[]>([])
 
   const tap = (i: number) => {
     if (paused || done) return
     const l = press(lights, cfg.n, i)
-    setLights(l); setMoves(moves + 1); sfx.flip()
+    const steps = [...log, { move: `Row ${Math.floor(i / cfg.n) + 1}, col ${(i % cfg.n) + 1}` }]
+    setLights(l); setMoves(moves + 1); setLog(steps); sfx.flip()
     if (isOff(l)) {
       setDone(true); sfx.win(); onScore(1)
-      setTimeout(() => onEnd({ score: 1, won: true, message: `All lights out in ${moves + 1} moves!`, emoji: '💡' }), 600)
+      setTimeout(() => onEnd({ score: 1, won: true, message: `All lights out in ${moves + 1} moves!`, emoji: '💡', steps, stepsTitle: 'Your taps' }), 600)
     }
   }
   return (
