@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { PageHeader } from './PageHeader'
 import { useStore, useTodaySeconds } from '@/shared/store'
 
 const HOLD_MS = 2000
@@ -24,10 +24,7 @@ function Gate({ onOpen }: { onOpen: () => void }) {
   useEffect(() => () => cancelAnimationFrame(timer.current), [])
   return (
     <>
-      <header className="topbar">
-        <Link className="btn icon" to="/" aria-label="Back">🏠</Link>
-        <h1 style={{ fontSize: '1.6rem' }}>🔒 Grown-ups corner</h1>
-      </header>
+      <PageHeader title="Grown-ups corner" />
       <main className="page">
         <div className="card start-card stack center">
           <p className="muted">Ask a grown-up! Press and hold the button for 2 seconds to open settings.</p>
@@ -58,10 +55,7 @@ function Settings() {
   const mins = Math.round(today / 60)
   return (
     <>
-      <header className="topbar">
-        <Link className="btn icon" to="/" aria-label="Back">🏠</Link>
-        <h1 style={{ fontSize: '1.6rem' }}>🔒 Grown-ups corner</h1>
-      </header>
+      <PageHeader title="Grown-ups corner" />
       <main className="page">
         <div className="card start-card">
           <div className="setting">

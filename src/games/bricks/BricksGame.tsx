@@ -108,7 +108,7 @@ export default function BricksGame({ difficulty, paused, onScore, onEnd }: GameP
     ctx.font = `${size * 0.05}px serif`; ctx.textAlign = 'left'; ctx.textBaseline = 'top'
     ctx.fillText('❤️'.repeat(Math.max(0, lives)), 10, 8)
     if (!launched.current && !ended.current) {
-      ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.font = `bold ${size * 0.05}px Fredoka, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+      ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.font = `bold ${size * 0.05}px 'Plus Jakarta Sans', sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
       ctx.fillText('Tap to launch!', size / 2, size * 0.6)
     }
   }

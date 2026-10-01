@@ -119,7 +119,7 @@ export default function HoopGame({ difficulty, paused, onScore, onEnd }: GamePro
     ctx.fillText('🏀', ball.current.x * S, ball.current.y * S)
     ctx.fillStyle = '#ff5a1f'; rrect(ctx, h.x * S, (h.y - 0.008) * S, h.w * S, 0.016 * S, 3)
     // HUD
-    ctx.fillStyle = '#1d2140'; ctx.font = `bold ${S * 0.05}px Fredoka, sans-serif`; ctx.textAlign = 'left'
+    ctx.fillStyle = '#1d2140'; ctx.font = `bold ${S * 0.05}px 'Plus Jakarta Sans', sans-serif`; ctx.textAlign = 'left'
     ctx.fillText(`🏀 × ${left.current}`, S * 0.04, S * 0.07)
     if (difficulty === 'hard') { ctx.textAlign = 'right'; ctx.fillText(`💨 ${wind.current >= 0 ? '→' : '←'} ${Math.round(Math.abs(wind.current) * 10)}`, S * 0.96, S * 0.07) }
     ctx.textAlign = 'center'

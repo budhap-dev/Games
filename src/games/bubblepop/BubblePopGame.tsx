@@ -159,7 +159,7 @@ export default function BubblePopGame({ difficulty, paused, onScore, onEnd }: Ga
     ctx.fillStyle = '#1d2140'; ctx.beginPath(); ctx.arc(sx, sy, r * 1.25, 0, Math.PI * 2); ctx.fill()
     if (!endedRef.current) drawBubble(sx, sy, current.current)
     drawBubble(sx + r * 3.2, sy + r * 0.2, next.current, r * 0.6)
-    ctx.fillStyle = '#1d2140'; ctx.font = `bold ${r * 0.8}px Fredoka, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+    ctx.fillStyle = '#1d2140'; ctx.font = `bold ${r * 0.8}px 'Plus Jakarta Sans', sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
     ctx.fillText('next', sx + r * 3.2, sy - r * 0.9)
     if (shot.current) drawBubble(shot.current.x, shot.current.y, shot.current.col)
   }

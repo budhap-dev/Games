@@ -92,7 +92,7 @@ export default function StackGame({ difficulty, paused, onScore, onEnd }: GamePr
     for (const f of falling.current) draw(f, f.level, f.y)
     if (!over.current) draw(moving.current, stack.current.length)
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-    ctx.fillStyle = '#fff'; ctx.font = `bold ${size * 0.06}px Fredoka, sans-serif`
+    ctx.fillStyle = '#fff'; ctx.font = `bold ${size * 0.06}px 'Plus Jakarta Sans', sans-serif`
     if (!started.current) ctx.fillText('Tap to drop!', size / 2, size * 0.18)
     if (flash.current > 0) { ctx.globalAlpha = flash.current; ctx.fillText('✨ Perfect!', size / 2, size * 0.18); ctx.globalAlpha = 1 }
   }

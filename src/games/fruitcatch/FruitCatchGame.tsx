@@ -89,7 +89,7 @@ export default function FruitCatchGame({ difficulty, paused, onScore, onEnd }: G
     // HUD
     ctx.font = `${size * 0.05}px serif`; ctx.textAlign = 'left'; ctx.textBaseline = 'top'
     ctx.fillText('🥾'.repeat(boots.current) + '⚪'.repeat(Math.max(0, 3 - boots.current)), 10, 8)
-    ctx.fillStyle = '#1d2140'; ctx.font = `bold ${size * 0.05}px Fredoka, sans-serif`; ctx.textAlign = 'right'
+    ctx.fillStyle = '#1d2140'; ctx.font = `bold ${size * 0.05}px 'Plus Jakarta Sans', sans-serif`; ctx.textAlign = 'right'
     ctx.fillText(`⏱ ${Math.max(0, Math.ceil(timeLeft.current / 1000))}s`, size - 10, 8)
   }
 

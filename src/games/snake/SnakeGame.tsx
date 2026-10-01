@@ -95,7 +95,7 @@ export default function SnakeGame({ difficulty, paused, onScore, onEnd }: GamePr
     }
     if (countdown > 0) {
       ctx.fillStyle = 'rgba(29,33,64,.35)'; ctx.fillRect(0, 0, size, size)
-      ctx.fillStyle = '#fff'; ctx.font = `bold ${size * 0.3}px Fredoka, sans-serif`
+      ctx.fillStyle = '#fff'; ctx.font = `bold ${size * 0.3}px 'Plus Jakarta Sans', sans-serif`
       ctx.fillText(String(countdown), size / 2, size / 2)
     }
   }

@@ -13,6 +13,7 @@ import { StickerBook } from './StickerBook'
 export default function App() {
   const theme = useStore((s) => s.theme)
   const palette = useStore((s) => s.palette)
+  const reducedMotion = useStore((s) => s.reducedMotion)
   const [welcome, setWelcome] = useState<string | null>(null)
   const nav = useNavigate()
   const loc = useLocation()
@@ -34,7 +35,8 @@ export default function App() {
     const el = document.documentElement
     if (theme === 'system') delete el.dataset.theme; else el.dataset.theme = theme
     if (palette === 'classic') delete el.dataset.palette; else el.dataset.palette = palette
-  }, [theme, palette])
+    if (reducedMotion) el.dataset.motion = 'reduce'; else delete el.dataset.motion
+  }, [theme, palette, reducedMotion])
   return (
     <div className="app">
       {welcome && <div className="toast" role="status">👋 Welcome, {welcome}!</div>}
