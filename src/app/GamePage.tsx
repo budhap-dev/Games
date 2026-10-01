@@ -41,6 +41,8 @@ export function GamePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
+  useEffect(() => { window.scrollTo(0, 0) }, [])
+
   // Remember the open game so reopening the app comes back here; leaving it in-app (🏠, back) forgets it.
   useEffect(() => {
     if (!game?.ready) return

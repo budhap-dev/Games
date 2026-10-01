@@ -32,6 +32,8 @@ interface State {
   palette: Palette
   /** Game open right now; cleared when leaving it in-app, so it survives only if the app is closed mid-game. */
   lastGame: string | null
+  /** Home tab last chosen, so leaving a game lands back on the same section */
+  homeTab: Category
   user: AuthUser | null
   setUser: (u: AuthUser | null) => void
   /** Replace progress fields with a merged copy (cloud sync). */
@@ -39,6 +41,7 @@ interface State {
   setTheme: (t: Theme) => void
   setPalette: (p: Palette) => void
   setLastGame: (id: string | null) => void
+  setHomeTab: (t: Category) => void
   toggleFav: (gameId: string) => void
   setSound: (v: boolean) => void
   setReducedMotion: (v: boolean) => void
@@ -65,6 +68,7 @@ const initial = {
   theme: 'system' as Theme,
   palette: 'classic' as Palette,
   lastGame: null as string | null,
+  homeTab: 'arcade' as Category,
   user: null as AuthUser | null,
 }
 
@@ -77,6 +81,7 @@ export const useStore = create<State>()(
       setTheme: (theme) => set({ theme }),
       setPalette: (palette) => set({ palette }),
       setLastGame: (lastGame) => set({ lastGame }),
+      setHomeTab: (homeTab) => set({ homeTab }),
       toggleFav: (gameId) => set((s) => ({ favs: s.favs.includes(gameId) ? s.favs.filter((g) => g !== gameId) : [...s.favs, gameId] })),
       setSound: (sound) => set({ sound }),
       setReducedMotion: (reducedMotion) => set({ reducedMotion }),
