@@ -38,6 +38,9 @@ export const GAMES: GameMeta[] = [
   { id: 'simon', name: 'Colour Echo', emoji: '🎵', category: 'arcade', color: 'grape', scoreLabel: 'rounds', ready: true,
     howTo: 'Watch and listen as the colours light up, then tap them back in the same order. Each round adds one more!',
     load: () => import('./simon/SimonGame') },
+  { id: 'stack', name: 'Stack Tower', emoji: '🏗️', category: 'arcade', color: 'orange', scoreLabel: 'blocks', ready: true,
+    howTo: 'Tap (or press space) to drop the sliding block onto the tower. Any bit hanging over the edge falls off — line it up perfectly to keep it wide!',
+    load: () => import('./stack/StackGame') },
   // ---- Brain Gym ----
   { id: 'sudoku', name: 'Sudoku Jr.', emoji: '🍓', category: 'brain', color: 'pink', scoreLabel: 'solved', ready: true,
     howTo: 'Fill the grid so every row, column and box has each picture exactly once. Tap a square, then tap a picture.',
@@ -66,6 +69,9 @@ export const GAMES: GameMeta[] = [
   { id: 'tangram', name: 'Tangram', emoji: '🔷', category: 'brain', color: 'sky', scoreLabel: 'pieces', ready: true,
     howTo: 'Drag each shape from the bottom onto the grey picture until it clicks into place. Fill the whole shape!',
     load: () => import('@/brain-gym/tangram/TangramGame') },
+  { id: 'scramble', name: 'Word Scramble', emoji: '🔠', category: 'brain', color: 'sun', scoreLabel: 'words', ready: true,
+    howTo: 'The letters are all mixed up! Look at the picture, then tap the letters in the right order to spell it. Tap a letter in your word to take it back.',
+    load: () => import('@/brain-gym/scramble/ScrambleGame') },
   // ---- Brain Lab (teens 14+) ----
   { id: 'g2048', name: '2048', emoji: '🔢', category: 'teen', color: 'sun', scoreLabel: 'points', ready: true,
     howTo: 'Swipe or use arrow keys to slide all tiles. Tiles with the same number merge. Reach 2048 — then keep going for a high score!',
@@ -100,6 +106,9 @@ export const GAMES: GameMeta[] = [
   { id: 'sudoku9', name: 'Sudoku 9×9', emoji: '9️⃣', category: 'teen', color: 'grape', scoreLabel: 'solved', ready: true,
     howTo: 'Classic Sudoku: every row, column and 3×3 box must contain 1–9 exactly once. Tap a square, then a number. Conflicts turn pink.',
     load: () => import('@/brain-lab/sudoku9/Sudoku9Game') },
+  { id: 'reversi', name: 'Reversi', emoji: '⚪', category: 'teen', color: 'lime', scoreLabel: 'discs', ready: true,
+    howTo: 'You are ⚫ and move first. Place a disc so it traps a line of ⚪ discs between two of yours — they all flip to ⚫. No move? Your turn is skipped. Most discs at the end wins. Corners can never be flipped!',
+    load: () => import('@/brain-lab/reversi/ReversiGame') },
 ]
 
 export const getGame = (id: string) => GAMES.find((g) => g.id === id)

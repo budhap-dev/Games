@@ -389,6 +389,33 @@ a { color: inherit; text-decoration: none; }
 .checkers .dest::after { content: ''; width: 30%; height: 30%; border-radius: 50%; background: rgba(255,201,60,.9); position: absolute; }
 .checkers .last { box-shadow: inset 0 0 0 3px rgba(45,156,219,.8); }
 
+/* Word Scramble */
+.scramble-pic { font-size: clamp(3.5rem, 16vw, 6rem); line-height: 1; }
+.scramble-slots, .scramble-tiles { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.scramble-slots button, .scramble-tiles button { width: clamp(48px, 13vw, 64px); height: clamp(48px, 13vw, 64px); border-radius: 14px; font-family: var(--display); font-weight: 700; font-size: clamp(1.5rem, 7vw, 2rem); text-transform: uppercase; display: flex; align-items: center; justify-content: center; }
+.scramble-slots button { background: var(--surface); border: 3px dashed var(--line); color: var(--ink); }
+.scramble-slots button:not(:disabled) { border-style: solid; border-color: var(--sky); }
+.scramble-slots.right button { background: var(--lime-soft); border-color: var(--lime); }
+.scramble-slots.wrong button, .scramble-slots.reveal button { background: var(--pink-soft); border-color: var(--pink); }
+.scramble-slots.wrong { animation: shake .35s; }
+.scramble-tiles button { background: var(--sun); color: #1d2140; border: none; box-shadow: 0 4px 0 rgba(0,0,0,.15); }
+.scramble-tiles button:disabled { opacity: .25; box-shadow: none; }
+.scramble-tiles button:active:not(:disabled) { transform: translateY(3px); box-shadow: none; }
+@keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+@media (prefers-reduced-motion: reduce) { .scramble-slots.wrong { animation: none; } }
+
+/* Reversi */
+.reversi { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; width: min(100%, 66vh, 480px); background: #1f5f3a; border: 4px solid #1f5f3a; border-radius: 8px; }
+.reversi button { aspect-ratio: 1; border-radius: 0; background: #2e8b57; display: flex; align-items: center; justify-content: center; position: relative; padding: 0; min-height: 0; }
+.reversi .disc { width: 80%; height: 80%; border-radius: 50%; box-shadow: 0 2px 3px rgba(0,0,0,.4); }
+.reversi .disc.b { background: radial-gradient(circle at 35% 30%, #555, #111); }
+.reversi .disc.w { background: radial-gradient(circle at 35% 30%, #fff, #d8d8d8); }
+.reversi .disc.pop { animation: disc-pop .3s; }
+.reversi .hint::after { content: ''; width: 24%; height: 24%; border-radius: 50%; background: rgba(255,255,255,.45); }
+.reversi .last { box-shadow: inset 0 0 0 3px var(--sun); }
+@keyframes disc-pop { from { transform: scale(.4); } }
+@media (prefers-reduced-motion: reduce) { .reversi .disc.pop { animation: none; } }
+
 /* Table Rockstars */
 .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .chip { min-width: 60px; height: 52px; padding: 0 12px; border-radius: 999px; background: var(--surface); border: 2px solid var(--line); font-family: var(--display); font-weight: 700; font-size: 1.05rem; }

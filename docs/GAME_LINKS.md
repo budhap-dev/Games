@@ -26,6 +26,7 @@ Installed PWAs also get home-screen **shortcuts** (long-press the icon) for Tabl
 | 🐝 Flappy Bee | https://playpatch.vercel.app/play/flappy | `/play/flappy?d=normal&start=1` |
 | 🔴 Connect Four | https://playpatch.vercel.app/play/connect4 | `/play/connect4?d=normal&start=1` |
 | 🎵 Colour Echo | https://playpatch.vercel.app/play/simon | `/play/simon?d=normal&start=1` |
+| 🏗️ Stack Tower | https://playpatch.vercel.app/play/stack | `/play/stack?d=normal&start=1` |
 
 ### 🧠 Brain Gym
 
@@ -40,6 +41,7 @@ Installed PWAs also get home-screen **shortcuts** (long-press the icon) for Tabl
 | 🧩 Sliding Puzzle | https://playpatch.vercel.app/play/slider | `/play/slider?d=normal&start=1` |
 | ➕ Quick Maths | https://playpatch.vercel.app/play/quickmaths | `/play/quickmaths?d=normal&start=1` |
 | 🔷 Tangram | https://playpatch.vercel.app/play/tangram | `/play/tangram?d=normal&start=1` |
+| 🔠 Word Scramble | https://playpatch.vercel.app/play/scramble | `/play/scramble?d=normal&start=1` |
 
 ### 🧪 Brain Lab
 
@@ -56,3 +58,4 @@ Installed PWAs also get home-screen **shortcuts** (long-press the icon) for Tabl
 | 🗼 Tower of Hanoi | https://playpatch.vercel.app/play/hanoi | `/play/hanoi?d=normal&start=1` |
 | ⚫ Checkers | https://playpatch.vercel.app/play/checkers | `/play/checkers?d=normal&start=1` |
 | 9️⃣ Sudoku 9×9 | https://playpatch.vercel.app/play/sudoku9 | `/play/sudoku9?d=normal&start=1` |
+| ⚪ Reversi | https://playpatch.vercel.app/play/reversi | `/play/reversi?d=normal&start=1` |
