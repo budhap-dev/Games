@@ -120,7 +120,7 @@ export default function KartDashGame({ difficulty, paused, onScore, onEnd }: Gam
     ctx.font = `${size * 0.05}px serif`; ctx.fillText('🏁', size * 0.9 + 14, 19)
     if (countdown > 0) {
       ctx.fillStyle = 'rgba(29,33,64,.35)'; ctx.fillRect(0, 0, size, size)
-      ctx.fillStyle = '#fff'; ctx.font = `bold ${size * 0.3}px Fredoka, sans-serif`
+      ctx.fillStyle = '#fff'; ctx.font = `bold ${size * 0.3}px 'Plus Jakarta Sans', sans-serif`
       ctx.fillText(String(countdown), size / 2, size / 2)
     }
   }

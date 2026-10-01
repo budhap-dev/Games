@@ -1,5 +1,5 @@
+import { PageHeader } from './PageHeader'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useStore } from '@/shared/store'
 import { authEnabled, signInWithGoogle, signOutUser } from '@/shared/auth'
 import { sfx } from '@/shared/audio'
@@ -19,10 +19,7 @@ export function Account() {
   }
   return (
     <>
-      <header className="topbar">
-        <Link className="btn icon" to="/" aria-label="Back">🏠</Link>
-        <h1 style={{ fontSize: '1.6rem' }}>👤 Account</h1>
-      </header>
+      <PageHeader title="Account" />
       <main className="page">
         <div className="card stack" style={{ maxWidth: 560, margin: '0 auto' }}>
           {!authEnabled ? (

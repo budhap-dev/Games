@@ -86,7 +86,7 @@ export default function FlappyGame({ difficulty, paused, onScore, onEnd }: GameP
     ctx.font = `${BEE_R * 2.6 * size}px serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
     ctx.fillText('🐝', 0, 0); ctx.restore()
     if (!started.current) {
-      ctx.fillStyle = '#1d2140'; ctx.font = `bold ${size * 0.055}px Fredoka, sans-serif`; ctx.textAlign = 'center'
+      ctx.fillStyle = '#1d2140'; ctx.font = `bold ${size * 0.055}px 'Plus Jakarta Sans', sans-serif`; ctx.textAlign = 'center'
       ctx.fillText('Tap to flap!', size / 2, size * 0.25)
     }
   }
