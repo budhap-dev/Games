@@ -55,6 +55,7 @@ Every game gets three difficulty levels (Easy / Normal / Hard), a Pause button, 
 - **2048 Jr.** — merge matching fruit pictures (4×4 grid); numbers shown optionally.
 - **Dots & Boxes** — classic pencil game, two players on one device.
 - **Stack Tower** — tap to drop a sliding block; overhang falls off, perfect drops keep it wide.
+- **Hoop Toss** — slingshot-aim a ball into a hoop; gravity curves the throw (wind on Hard). Physics you can feel.
 - **Pong / Air Hockey** — two thumbs, one phone; laptop uses keyboard for both.
 
 ### Brain Gym (concentration & brainstorming puzzles)
@@ -71,6 +72,8 @@ Every game gets three difficulty levels (Easy / Normal / Hard), a Pause button, 
 | **Word Scramble** (picture clue; 3 → 4 → 5–6 letters) | Vocabulary, spelling |
 | **Memory Sequence** (remember where things were) | Working memory |
 | **Table Rockstars** (pick tables, 60–90 s, auto-check, rock status by speed, weak facts repeat) | Times-table fluency, recall speed |
+| **Balance Scale** (place blocks so weight × distance matches) | Levers and moments, early multiplication |
+| **Number Line Jump** (0–10 → 0–100 → fractions/decimals on 0–2) | Number sense, estimation, fractions |
 
 Brain Gym tracks **streaks** ("3 puzzles today!") rather than scores, and never shows a countdown on Easy.
 
@@ -91,6 +94,8 @@ Added after launch for older siblings: classic thinking games with real depth, n
 | **Checkers vs robot** (random → capture-greedy → minimax) | Strategy, look-ahead |
 | **Sudoku 9×9** | Sustained logical reasoning |
 | **Reversi vs robot** (random → corner-greedy → minimax) | Strategy, thinking in corners and mobility |
+| **Laser Mirrors** (turn mirrors to steer a beam onto targets) | Optics (reflection), spatial planning |
+| **Graph Match** (sliders for y = mx + c, then y = a(x − h)² + k) | Linear and quadratic functions, transformations |
 
 ## 5. Shared experience layer
 - **Home** — big colourful tiles, three tabs: *Arcade*, *Brain Gym* and *Brain Lab*; a search-free grid on phones.

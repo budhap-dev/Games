@@ -41,6 +41,9 @@ export const GAMES: GameMeta[] = [
   { id: 'stack', name: 'Stack Tower', emoji: '🏗️', category: 'arcade', color: 'orange', scoreLabel: 'blocks', ready: true,
     howTo: 'Tap (or press space) to drop the sliding block onto the tower. Any bit hanging over the edge falls off — line it up perfectly to keep it wide!',
     load: () => import('./stack/StackGame') },
+  { id: 'hoop', name: 'Hoop Toss', emoji: '🏀', category: 'arcade', color: 'sky', scoreLabel: 'baskets', ready: true,
+    howTo: 'Drag back from anywhere and let go to throw — like a slingshot. Pull further for more power. Gravity bends the ball’s path into a curve! 10 balls. (On Hard the wind blows too.)',
+    load: () => import('./hoop/HoopGame') },
   // ---- Brain Gym ----
   { id: 'sudoku', name: 'Sudoku Jr.', emoji: '🍓', category: 'brain', color: 'pink', scoreLabel: 'solved', ready: true,
     howTo: 'Fill the grid so every row, column and box has each picture exactly once. Tap a square, then tap a picture.',
@@ -72,6 +75,12 @@ export const GAMES: GameMeta[] = [
   { id: 'scramble', name: 'Word Scramble', emoji: '🔠', category: 'brain', color: 'sun', scoreLabel: 'words', ready: true,
     howTo: 'The letters are all mixed up! Look at the picture, then tap the letters in the right order to spell it. Tap a letter in your word to take it back.',
     load: () => import('@/brain-gym/scramble/ScrambleGame') },
+  { id: 'balance', name: 'Balance Scale', emoji: '⚖️', category: 'brain', color: 'grape', scoreLabel: 'stars', ready: true,
+    howTo: 'Make the see-saw level! Pick a block, then tap a peg on the right side. Blocks further from the middle pull harder — weight × peg number. Fewest blocks earns 3 stars.',
+    load: () => import('@/brain-gym/balance/BalanceGame') },
+  { id: 'numberline', name: 'Number Line Jump', emoji: '🐸', category: 'brain', color: 'lime', scoreLabel: 'stars', ready: true,
+    howTo: 'Help the frog jump to the right spot! Tap on the line where the number belongs. The closer you land, the more stars you get.',
+    load: () => import('@/brain-gym/numberline/NumberLineGame') },
   // ---- Brain Lab (teens 14+) ----
   { id: 'g2048', name: '2048', emoji: '🔢', category: 'teen', color: 'sun', scoreLabel: 'points', ready: true,
     howTo: 'Swipe or use arrow keys to slide all tiles. Tiles with the same number merge. Reach 2048 — then keep going for a high score!',
@@ -109,6 +118,12 @@ export const GAMES: GameMeta[] = [
   { id: 'reversi', name: 'Reversi', emoji: '⚪', category: 'teen', color: 'lime', scoreLabel: 'discs', ready: true,
     howTo: 'You are ⚫ and move first. Place a disc so it traps a line of ⚪ discs between two of yours — they all flip to ⚫. No move? Your turn is skipped. Most discs at the end wins. Corners can never be flipped!',
     load: () => import('@/brain-lab/reversi/ReversiGame') },
+  { id: 'laser', name: 'Laser Mirrors', emoji: '🔦', category: 'teen', color: 'pink', scoreLabel: 'points', ready: true,
+    howTo: 'Tap a mirror to turn it. The laser reflects off each mirror at a right angle (angle in = angle out). Steer the beam onto every 🎯 target — fewer taps, more points.',
+    load: () => import('@/brain-lab/laser/LaserGame') },
+  { id: 'graphmatch', name: 'Graph Match', emoji: '📈', category: 'teen', color: 'sky', scoreLabel: 'points', ready: true,
+    howTo: 'Move the sliders until your solid graph sits exactly on the dashed one. Lines y = mx + c, then parabolas y = a(x − h)² + k on Hard. Faster matches score more.',
+    load: () => import('@/brain-lab/graphmatch/GraphMatchGame') },
 ]
 
 export const getGame = (id: string) => GAMES.find((g) => g.id === id)

@@ -416,6 +416,61 @@ a { color: inherit; text-decoration: none; }
 @keyframes disc-pop { from { transform: scale(.4); } }
 @media (prefers-reduced-motion: reduce) { .reversi .disc.pop { animation: none; } }
 
+/* Balance Scale */
+.balance { width: min(100%, 520px); overflow: visible; }
+.balance .bal-beam { transition: transform .5s cubic-bezier(.3,1.4,.6,1); }
+.balance .bal-beam > rect { fill: var(--ink-2); }
+.balance .bal-pivot { fill: var(--line); stroke: var(--ink-2); stroke-width: 3; stroke-linejoin: round; }
+.balance .bal-peg circle { fill: var(--surface); }
+.balance .bal-peg text { fill: var(--ink-2); font: 600 18px var(--display); text-anchor: middle; }
+.balance .bal-block rect { stroke: rgba(0,0,0,.2); stroke-width: 2; }
+.balance .bal-block.left rect { fill: var(--pink); } .balance .bal-block.right rect { fill: var(--sky); }
+.balance .bal-block text { fill: #fff; font: 700 19px var(--display); text-anchor: middle; dominant-baseline: central; }
+.bal-ok { background: var(--lime-soft); }
+.bal-pegs { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.bal-pegs .btn { min-width: 52px; padding: 0 12px; font-size: 1.3rem; }
+@media (prefers-reduced-motion: reduce) { .balance .bal-beam { transition: none; } }
+
+/* Number Line Jump */
+.nl-ask { font-family: var(--display); font-size: 1.6rem; margin: 0; }
+.nl-ask b { color: var(--orange); font-size: 2.2rem; }
+.numline { width: min(100%, 620px); touch-action: none; cursor: pointer; }
+.numline .nl-hit { fill: transparent; }
+.numline .nl-axis { stroke: var(--ink); stroke-width: 5; stroke-linecap: round; }
+.numline .nl-tick { stroke: var(--ink); stroke-width: 3; stroke-linecap: round; }
+.numline .nl-label { fill: var(--ink); font: 700 22px var(--display); text-anchor: middle; }
+.numline .nl-frog, .numline .nl-flag { font-size: 34px; text-anchor: middle; }
+.numline .nl-frog { transition: transform .45s cubic-bezier(.3,1.5,.6,1); }
+@media (prefers-reduced-motion: reduce) { .numline .nl-frog { transition: none; } }
+
+/* Laser Mirrors (board paints its own dark lab ground) */
+.laser { width: min(100%, 62vh, 500px); background: #141936; border-radius: 16px; padding: 6px; }
+.laser .lz-cell { fill: #222a5a; }
+.laser .lz-target { fill: none; stroke: #ffc93c; stroke-width: 4; stroke-dasharray: 6 5; }
+.laser .lz-target.on { fill: #ffc93c; stroke-dasharray: none; }
+.laser .lz-beam { fill: none; stroke: #ff3b6b; stroke-width: 5; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 0 4px #ff3b6b); }
+.laser .lz-source { font-size: 28px; text-anchor: middle; dominant-baseline: central; }
+.laser .lz-mirror { cursor: pointer; outline: none; }
+.laser .lz-mirror rect { fill: transparent; }
+.laser .lz-mirror:focus-visible rect { stroke: #ffc93c; stroke-width: 3; }
+.laser .lz-mirror line { stroke: #cfe8ff; stroke-width: 7; stroke-linecap: round; }
+
+/* Graph Match */
+.graph { width: min(100%, 52vh, 460px); background: var(--surface); border: 2px solid var(--line); border-radius: 16px; }
+.graph .gm-grid line { stroke: var(--line); stroke-width: 1; }
+.graph .gm-axis line { stroke: var(--ink-2); stroke-width: 2.5; }
+.graph .gm-num text { fill: var(--ink-2); font: 600 14px var(--body); text-anchor: middle; }
+.graph polyline { fill: none; stroke-width: 4; stroke-linejoin: round; stroke-linecap: round; }
+.graph .gm-target { stroke: var(--pink); stroke-dasharray: 10 8; }
+.graph .gm-mine { stroke: var(--sky); }
+.graph .gm-mine.ok { stroke: var(--lime); stroke-width: 6; }
+.gm-formula { font-family: var(--display); font-size: 1.5rem; font-weight: 600; }
+.gm-controls { display: grid; gap: 6px; width: min(100%, 460px); }
+.gm-row { display: grid; grid-template-columns: 4.6em 52px 1fr 52px 2.6em; align-items: center; gap: 6px; }
+.gm-label { font-size: 0.95rem; color: var(--ink-2); font-weight: 700; line-height: 1.1; }
+.gm-row input[type=range] { width: 100%; height: 48px; accent-color: var(--orange); min-width: 0; }
+.gm-val { font-family: var(--display); font-size: 1.2rem; text-align: right; }
+
 /* Table Rockstars */
 .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .chip { min-width: 60px; height: 52px; padding: 0 12px; border-radius: 999px; background: var(--surface); border: 2px solid var(--line); font-family: var(--display); font-weight: 700; font-size: 1.05rem; }
