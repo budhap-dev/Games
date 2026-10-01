@@ -37,7 +37,7 @@ export default function CodeBreakerGame({ difficulty, paused, onScore, onEnd }: 
       setTimeout(() => onEnd({ score: pts, won: true, message: `Cracked in ${next.length}!`, emoji: '🕵️', steps, stepsTitle: 'Your guesses' }), 700)
     } else if (next.length >= cfg.tries) {
       setDone(true); sfx.lose()
-      setTimeout(() => onEnd({ score: 0, won: false, message: 'Out of guesses — the code is revealed below', emoji: '🔒', steps, stepsTitle: 'Your guesses' }), 900)
+      setTimeout(() => onEnd({ score: 0, won: false, message: `Out of guesses — the code was ${code.map((c) => DOTS[c]).join('')}`, emoji: '🔒', steps, stepsTitle: 'Your guesses' }), 900)
     } else sfx.flip()
   }
 

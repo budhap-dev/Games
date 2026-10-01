@@ -12,6 +12,8 @@ import { Confetti } from '@/shared/Confetti'
 import { Icon } from '@/shared/Icon'
 
 const CATEGORY = { arcade: 'Arcade', brain: 'Brain Gym', teen: 'Brain Lab' } as const
+/** "1 stars" → "1 star" (labels like "solved" or "fruit" are left alone) */
+const unit = (n: number, label: string) => (n === 1 && /[^s]s$/.test(label) ? label.slice(0, -1) : label)
 
 type Phase = 'start' | 'playing' | 'paused' | 'ended'
 
@@ -80,7 +82,8 @@ export function GamePage() {
   const start = () => {
     sfx.unlock(); sfx.tap()
     setScore(0); setEnd(null); setNewStickers([]); setIsBest(false)
-    setRun((r) => r + 1)
+    runNow.current += 1
+    setRun(runNow.current)
     setPhase('playing')
   }
   const onEnd = (r: GameEnd) => {
@@ -92,6 +95,20 @@ export function GamePage() {
     setNewStickers(fresh)
     if (r.won || isBest || fresh.length) { sfx.win(); setBurst((b) => b + 1) } else sfx.lose()
   }
+
+  // Games report through these. Late calls from an earlier run (a timer still pending after Restart,
+  // or after leaving the page) and a second end for the same run are ignored.
+  const runNow = useRef(0), alive = useRef(true), endedRun = useRef(-1), onEndRef = useRef(onEnd)
+  onEndRef.current = onEnd
+  useEffect(() => { alive.current = true; return () => { alive.current = false } }, [])
+  const report = useMemo(() => {
+    const me = run
+    const live = () => alive.current && runNow.current === me
+    return {
+      score: (s: number) => { if (live()) setScore(s) },
+      end: (r: GameEnd) => { if (live() && endedRun.current !== me) { endedRun.current = me; onEndRef.current(r) } },
+    }
+  }, [run])
 
   // ?start=1 → skip the start card (used by shared links and home-screen shortcuts)
   useEffect(() => {
@@ -118,7 +135,7 @@ export function GamePage() {
       <div className="game-top">
         <button className="btn icon ghost" aria-label="Back to games" onClick={() => nav('/')}><Icon name="back" /></button>
         <h1><span className="game-ico" aria-hidden="true">{game.emoji}</span><span className="game-name">{game.name}</span></h1>
-        {phase !== 'start' && <div className="score-pill" aria-live="polite"><span key={score} className="bump">{score}</span> <small>{game.scoreLabel}</small></div>}
+        {phase !== 'start' && <div className="score-pill" aria-live="polite"><span key={score} className="bump">{score}</span> <small>{unit(score, game.scoreLabel)}</small></div>}
         {phase === 'playing' && <button className="btn icon" aria-label="Pause" onClick={() => { sfx.tap(); setPhase('paused') }}><Icon name="pause" /></button>}
       </div>
 
@@ -127,7 +144,7 @@ export function GamePage() {
           <div className="start-hero" aria-hidden="true"><span className="hero-emoji">{game.emoji}</span></div>
           <div className="start-title">
             <h2>{game.name}</h2>
-            <p className="muted">{CATEGORY[game.category]}{store.best[game.id] ? ` · Best ${store.best[game.id]} ${game.scoreLabel}` : ''}</p>
+            <p className="muted">{CATEGORY[game.category]}{store.best[game.id] ? ` · Best ${store.best[game.id]} ${unit(store.best[game.id], game.scoreLabel)}` : ''}</p>
           </div>
           <div className="howto with-ico"><Icon name="info" size={20} /><span>{game.howTo}</span></div>
           <div className="seg" role="group" aria-label="Difficulty">
@@ -150,7 +167,7 @@ export function GamePage() {
       ) : (
         <div className="game-area">
           <Suspense fallback={<div className="card">Loading…</div>}>
-            <Game key={run} difficulty={difficulty} paused={phase !== 'playing'} onScore={setScore} onEnd={onEnd} />
+            <Game key={run} difficulty={difficulty} paused={phase !== 'playing'} onScore={report.score} onEnd={report.end} />
           </Suspense>
 
           {phase === 'paused' && (
@@ -171,7 +188,7 @@ export function GamePage() {
                 <div className="big">{end.emoji ?? (end.won ? '🎉' : '💫')}</div>
                 <h2>{end.message}</h2>
                 <p style={{ fontSize: '1.3rem', margin: 0 }}>
-                  <b>{end.score}</b> {game.scoreLabel}
+                  <b>{end.score}</b> {unit(end.score, game.scoreLabel)}
                   {isBest && end.score > 0 ? <> <span className="badge">🏅 New best</span></> : null}
                 </p>
                 {end.details?.map((d, i) => <p key={i} className="muted" style={{ margin: 0, fontSize: '1rem' }}>{d}</p>)}

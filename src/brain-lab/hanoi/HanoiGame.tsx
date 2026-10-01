@@ -40,7 +40,7 @@ export default function HanoiGame({ difficulty, paused, onScore, onEnd }: GamePr
           </button>
         ))}
       </div>
-      <p className="muted center" style={{ margin: 0, fontSize: '.95rem' }}>Tap a peg to pick up its top disc, then tap where to put it</p>
+      <p className="muted center" style={{ margin: 0, fontSize: '1.125rem' }}>Tap a peg to pick up its top disc, then tap where to put it</p>
     </>
   )
 }

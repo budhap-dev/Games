@@ -23,20 +23,20 @@ export default function Sudoku9Game({ difficulty, paused, onScore, onEnd }: Game
   return (
     <>
       <div className="turn">9️⃣ {grid.filter(Boolean).length} / 81</div>
-      <div className="sudoku" style={{ gridTemplateColumns: 'repeat(9, minmax(40px, 1fr))', gap: 2, padding: 3 }} role="grid" aria-label="Sudoku 9x9">
+      <div className="sudoku" style={{ gridTemplateColumns: 'repeat(9, minmax(0, 1fr))', gap: 2, padding: 3 }} role="grid" aria-label="Sudoku 9x9">
         {grid.map((v, i) => {
           const r = Math.floor(i / 9), c = i % 9
           const cls = [puzzle[i] ? 'given' : '', sel === i ? 'sel' : '', bad.has(i) ? 'bad' : '', (r + 1) % 3 === 0 && r < 8 ? 'box-r' : '', (c + 1) % 3 === 0 && c < 8 ? 'box-c' : ''].join(' ')
           return (
-            <button key={i} className={cls} style={{ fontSize: 'clamp(.9rem, 4vw, 1.4rem)', outline: selVal && v === selVal && sel !== i ? '3px solid var(--sky)' : undefined, outlineOffset: -3 }} onClick={() => { sfx.tap(); setSel(i) }} aria-label={v ? String(v) : 'empty'}>
+            <button key={i} className={cls} style={{ fontSize: 'clamp(1.1rem, 5.2vw, 1.6rem)', outline: selVal && v === selVal && sel !== i ? '3px solid var(--sky)' : undefined, outlineOffset: -3 }} onClick={() => { sfx.tap(); setSel(i) }} aria-label={v ? String(v) : 'empty'}>
               {v || ''}
             </button>
           )
         })}
       </div>
       <div className="palette" aria-label="Numbers">
-        {Array.from({ length: 9 }, (_, i) => <button key={i} onClick={() => put(i + 1)} disabled={counts[i] >= 9} style={{ width: 44, height: 48, fontSize: '1.2rem', opacity: counts[i] >= 9 ? 0.35 : 1 }} aria-label={String(i + 1)}>{i + 1}</button>)}
-        <button onClick={() => put(0)} style={{ width: 44, height: 48 }} aria-label="Erase">⌫</button>
+        {Array.from({ length: 9 }, (_, i) => <button key={i} onClick={() => put(i + 1)} disabled={counts[i] >= 9} style={{ width: 48, height: 48, fontSize: '1.3rem', opacity: counts[i] >= 9 ? 0.35 : 1 }} aria-label={String(i + 1)}>{i + 1}</button>)}
+        <button onClick={() => put(0)} style={{ width: 48, height: 48 }} aria-label="Erase">⌫</button>
       </div>
     </>
   )

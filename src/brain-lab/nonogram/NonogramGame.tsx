@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import type { CSSProperties } from 'react'
 import type { GameProps } from '@/games/types'
 import { colClues, generate, rowClues, solves } from './logic'
 import { sfx } from '@/shared/audio'
@@ -38,7 +39,7 @@ export default function NonogramGame({ difficulty, paused, onScore, onEnd }: Gam
           <button aria-pressed={mode === 'x'} onClick={() => { sfx.tap(); setMode('x') }}>✖ Mark</button>
         </div>
       </div>
-      <div className={`nono ${done ? 'solved' : ''}`} style={{ gridTemplateColumns: `${cluesW} repeat(${n}, minmax(44px, 1fr))`, gridTemplateRows: `${Math.max(2, maxCol) * 1.1}em repeat(${n}, minmax(44px, 1fr))` }} role="grid" aria-label="Nonogram">
+      <div className={`nono ${done ? 'solved' : ''}`} style={{ gridTemplateColumns: `${cluesW} repeat(${n}, minmax(0, 1fr))`, gridTemplateRows: `${Math.max(2, maxCol) * 1.2}em repeat(${n}, auto)`, '--n': n } as CSSProperties} role="grid" aria-label="Nonogram">
         <div className="corner" />
         {cols.map((c, j) => <div key={`c${j}`} className="clue col" aria-label={`Column ${j + 1}: ${c.join(' ')}`}>{c.map((v, k) => <span key={k}>{v}</span>)}</div>)}
         {grid.map((row, r) => (

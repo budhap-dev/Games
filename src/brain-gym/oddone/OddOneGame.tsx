@@ -36,7 +36,7 @@ export default function OddOneGame({ difficulty, paused, onScore, onEnd }: GameP
           <button key={k} onClick={() => choose(it)} className={picked ? (it === round.odd ? 'right' : it === picked ? 'wrong' : '') : ''} aria-label={it}>{it}</button>
         ))}
       </div>
-      {picked && <div className="howto">{picked === round.odd ? '✅' : '💡'} {round.hint}</div>}
+      {picked && <div className="howto gym-tip">{picked === round.odd ? '✅' : '💡'} {round.hint}</div>}
     </>
   )
 }

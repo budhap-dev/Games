@@ -7,7 +7,7 @@ import { sfx } from '@/shared/audio'
 // SVG space: 10 wide × 11 tall, y down. Figure sits at the top, centred; tray below.
 const VW = 10, VH = 11
 const PICK = { easy: 0, normal: 1, hard: 2 }
-const TRAY: Pt[] = [[1.2, 3.3], [8.6, 3.4], [5, 3.4], [2.6, 1.3], [5.2, 1.3], [7.2, 1.7], [8.7, 1.7]]
+const TRAY: Pt[] = [[2.1, 3.3], [8.6, 3.4], [5, 3.4], [2.6, 1.3], [5.2, 1.3], [7.2, 1.7], [8.7, 1.7]]
 
 export default function TangramGame({ difficulty, paused, onScore, onEnd }: GameProps) {
   const fig = FIGURES[PICK[difficulty]]
@@ -23,6 +23,8 @@ export default function TangramGame({ difficulty, paused, onScore, onEnd }: Game
     return o
   })
   const [locked, setLocked] = useState<Set<string>>(new Set())
+  // refs mirror state so the pointer handlers never run side effects inside state updaters
+  const offsetsRef = useRef(offsets), lockedRef = useRef(locked)
   const drag = useRef<{ id: string; start: Pt; orig: Pt } | null>(null)
   const [dragging, setDragging] = useState<string | null>(null)
 
@@ -33,7 +35,7 @@ export default function TangramGame({ difficulty, paused, onScore, onEnd }: Game
   const onDown = (id: string) => (e: React.PointerEvent) => {
     if (paused || locked.has(id)) return
     e.preventDefault()
-    drag.current = { id, start: svgPoint(e), orig: offsets[id] }
+    drag.current = { id, start: svgPoint(e), orig: offsetsRef.current[id] }
     setDragging(id)
     ;(e.target as Element).setPointerCapture(e.pointerId)
     sfx.tap()
@@ -42,24 +44,20 @@ export default function TangramGame({ difficulty, paused, onScore, onEnd }: Game
     const move = (e: PointerEvent) => {
       const d = drag.current; if (!d) return
       const p = svgPoint(e)
-      setOffsets((o) => ({ ...o, [d.id]: [d.orig[0] + (p[0] - d.start[0]), d.orig[1] - (p[1] - d.start[1])] }))
+      offsetsRef.current = { ...offsetsRef.current, [d.id]: [d.orig[0] + (p[0] - d.start[0]), d.orig[1] - (p[1] - d.start[1])] }
+      setOffsets(offsetsRef.current)
     }
     const up = () => {
       const d = drag.current; if (!d) return
       drag.current = null; setDragging(null)
-      setOffsets((o) => {
-        const off = o[d.id], tgt = fig.targets[d.id]
-        if (snaps(off, tgt)) {
-          sfx.good()
-          setLocked((l) => {
-            const n = new Set(l); n.add(d.id); onScore(n.size)
-            if (n.size === PIECES.length) setTimeout(() => onEnd({ score: PIECES.length, won: true, message: `You built the ${fig.name}!`, emoji: fig.emoji }), 500)
-            return n
-          })
-          return { ...o, [d.id]: tgt }
-        }
-        return o
-      })
+      const tgt = fig.targets[d.id]
+      if (!snaps(offsetsRef.current[d.id], tgt)) return
+      sfx.good()
+      offsetsRef.current = { ...offsetsRef.current, [d.id]: tgt }
+      setOffsets(offsetsRef.current)
+      const n = new Set(lockedRef.current); n.add(d.id)
+      lockedRef.current = n; setLocked(n); onScore(n.size)
+      if (n.size === PIECES.length) setTimeout(() => onEnd({ score: PIECES.length, won: true, message: `You built the ${fig.name}!`, emoji: fig.emoji }), 500)
     }
     window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up)
     return () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up) }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { GameProps, GameStep } from '@/games/types'
-import { N, applyMove, countSide, initial, legalMoves, moveName, robotMove, sideOf, winner } from './logic'
+import { DRAW_PLIES, N, applyMove, countSide, initial, isQuiet, legalMoves, moveName, robotMove, sideOf, winner } from './logic'
 import type { Board, Move } from './logic'
 import { sfx } from '@/shared/audio'
 
@@ -13,6 +13,7 @@ export default function CheckersGame({ difficulty, paused, onScore, onEnd }: Gam
   const [last, setLast] = useState<number[]>([])
   const [done, setDone] = useState(false)
   const log = useRef<GameStep[]>([])
+  const quiet = useRef(0)
   const moves = legalMoves(board, turn)
 
   const finish = (b: Board, next: 'r' | 'b') => {
@@ -30,7 +31,14 @@ export default function CheckersGame({ difficulty, paused, onScore, onEnd }: Gam
     log.current = [...log.current, { who: turn === 'r' ? 'You' : 'Robot', move: moveName(m) }]
     m.captures.length ? sfx.pop() : sfx.flip()
     const next = turn === 'r' ? 'b' : 'r'
-    if (!finish(nb, next)) setTurn(next)
+    quiet.current = isQuiet(board, m) ? quiet.current + 1 : 0
+    if (finish(nb, next)) return
+    if (quiet.current >= DRAW_PLIES) {
+      setDone(true); onScore(0)
+      setTimeout(() => onEnd({ score: 0, won: false, message: 'A draw — 40 moves each with no capture', emoji: '🤝', steps: log.current, stepsTitle: 'Moves' }), 900)
+      return
+    }
+    setTurn(next)
   }
   useEffect(() => {
     if (turn !== 'b' || done || paused) return

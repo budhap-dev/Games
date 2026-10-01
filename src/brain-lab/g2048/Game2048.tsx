@@ -47,7 +47,7 @@ export default function Game2048({ difficulty, paused, onScore, onEnd }: GamePro
           <div key={`${i},${j}`} className={`t ${v ? (v > 2048 ? 'big' : `v${v}`) : ''} ${lastNew === `${i},${j}` ? 'new' : ''}`} aria-label={v ? String(v) : 'empty'}>{v || ''}</div>
         )))}
       </div>
-      <p className="muted center" style={{ margin: 0, fontSize: '.95rem' }}>Swipe anywhere or use arrow keys</p>
+      <p className="muted center" style={{ margin: 0, fontSize: '1.125rem' }}>Swipe anywhere or use arrow keys</p>
     </>
   )
 }

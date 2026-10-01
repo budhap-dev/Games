@@ -51,7 +51,7 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
   const cfg = CONFIG[difficulty]
   const store = useTablesStore()
   const [params] = useSearchParams()
-  const fromUrl = (params.get('tables') ?? '').split(',').map(Number).filter((n) => n >= 1 && n <= 12)
+  const fromUrl = ALL.filter((t) => (params.get('tables') ?? '').split(',').map(Number).includes(t))
   const [tables, setTables] = useState<number[]>(fromUrl.length ? fromUrl : store.tables?.length ? store.tables : cfg.tables)
   const [phase, setPhase] = useState<'setup' | 'play'>('setup')
   const [copied, setCopied] = useState(false)
@@ -93,7 +93,7 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
       score: c, won: c >= 15,
       message: `${status.emoji} ${status.name}!`, emoji: '🎸',
       details: [
-        `${c} correct out of ${n} · ${n ? Math.round((c / n) * 100) : 0}% accuracy`,
+        `${c} correct out of ${n} · ${n ? Math.floor((c / n) * 100) : 0}% accuracy`,
         c ? `Average ${avg.toFixed(2)}s per correct answer this session` : 'No answers this time — try again!',
         all.correct ? `All time: ${all.correct}/${all.answered} correct · average ${fmt(all.avgOkSec)} per correct answer` : '',
         tableLine ? `By table: ${tableLine}` : '',
@@ -164,7 +164,7 @@ export default function TablesGame({ difficulty, paused, onScore, onEnd }: GameP
         {all.answered > 0 && (
           <div className="tt-stats" aria-label="Your stats">
             <div className="row" style={{ justifyContent: 'space-between' }}><b>📊 All time</b><span>{all.correct}/{all.answered} correct · avg {fmt(all.avgOkSec)} per correct</span></div>
-            <ul className="end-list" style={{ maxHeight: '22vh' }}>
+            <ul className="end-list" style={{ maxHeight: 'calc(22 * var(--vh))' }}>
               {pt.map(({ table, summary }) => <li key={table}><span>{table}× · {summary.correct}/{summary.answered}</span><b>{fmt(summary.avgOkSec)}</b></li>)}
             </ul>
           </div>

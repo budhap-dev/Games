@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { applyMove, initial, legalMoves, moveName, square, winner } from './logic'
+import { applyMove, initial, isQuiet, legalMoves, moveName, square, winner } from './logic'
 import type { Board } from './logic'
 
 const empty = (): Board => Array(64).fill(null)
@@ -25,6 +25,14 @@ describe('checkers', () => {
     expect(nb[1]).toBe('R')
     const solo = empty(); solo[3 * 8 + 2] = 'r'
     expect(winner(solo, 'b')).toBe('r')
+  })
+  it('only non-capturing king moves count towards a draw', () => {
+    const b = empty(); b[4 * 8 + 3] = 'R'; b[5 * 8 + 0] = 'r'; b[0 * 8 + 1] = 'b'
+    const moves = legalMoves(b, 'r')
+    expect(moves.filter((m) => m.path[0] === 4 * 8 + 3).every((m) => isQuiet(b, m))).toBe(true)
+    expect(moves.filter((m) => m.path[0] === 5 * 8 + 0).some((m) => isQuiet(b, m))).toBe(false)
+    const c = empty(); c[4 * 8 + 3] = 'R'; c[3 * 8 + 4] = 'b'
+    expect(isQuiet(c, legalMoves(c, 'r')[0])).toBe(false)
   })
   it('names squares and moves from the human side', () => {
     expect(square(0)).toBe('a8'); expect(square(63)).toBe('h1'); expect(square(5 * 8 + 2)).toBe('c3')

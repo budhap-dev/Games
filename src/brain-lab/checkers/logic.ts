@@ -61,6 +61,10 @@ export function applyMove(b: Board, m: Move): Board {
   n[to] = p
   return n
 }
+/** Plies without a capture or a man moving before the game is a draw (the 40-move rule). */
+export const DRAW_PLIES = 80
+/** A king move that captures nothing — counts towards the draw rule. */
+export const isQuiet = (b: Board, m: Move) => !m.captures.length && isKing(b[m.path[0]])
 export const countSide = (b: Board, s: Side) => b.filter((p) => sideOf(p) === s).length
 export function winner(b: Board, toMove: Side): Side | null {
   const other: Side = toMove === 'r' ? 'b' : 'r'

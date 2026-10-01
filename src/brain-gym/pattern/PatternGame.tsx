@@ -10,6 +10,8 @@ const short = (x: string) => {
   for (let l = 1; l < x.length; l++) if (x.length % l === 0 && x.slice(0, l).repeat(x.length / l) === x) return `${x.slice(0, l)}×${x.length / l}`
   return x
 }
+/** growing patterns with 6+ shapes per box get a smaller font so options fit on one line */
+const isLong = (x: string) => /×([6-9]|\d\d)$/.test(short(x))
 const compact = (seq: string[]) => (seq.length > 6 ? '… ' : '') + [...seq.slice(-6).map(short), '?'].join(' ')
 
 export default function PatternGame({ difficulty, paused, onScore, onEnd }: GameProps) {
@@ -37,7 +39,7 @@ export default function PatternGame({ difficulty, paused, onScore, onEnd }: Game
   return (
     <>
       <div className="turn">Round {i} / {ROUNDS}</div>
-      <div className="card stack" style={{ width: 'min(100%, 560px)' }}>
+      <div className={`card stack ${[...round.seq, ...round.options].some(isLong) ? 'pat-long' : ''}`} style={{ width: 'min(100%, 560px)' }}>
         <div className="seq" aria-label="Pattern">
           {round.seq.map((s, k) => <div key={k} className="item">{s}</div>)}
           <div className="item q" aria-label="What comes next?">?</div>

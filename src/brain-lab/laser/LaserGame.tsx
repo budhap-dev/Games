@@ -27,7 +27,7 @@ export default function LaserGame({ difficulty, paused, onScore, onEnd }: GamePr
     if (!solved(p, m)) return
     const pts = puzzlePoints(t, p.par), tot = total + pts
     setDone(true); setTotal(tot); onScore(tot); sfx.good()
-    log.current = [...log.current, { move: `Puzzle ${n}`, result: `${t} taps (par ${p.par}) · +${pts}`, ok: t <= p.par }]
+    log.current = [...log.current, { move: `Puzzle ${n}`, result: `${t} tap${t === 1 ? '' : 's'} (par ${p.par}) · +${pts}`, ok: t <= p.par }]
     setTimeout(() => {
       if (n >= ROUNDS) {
         onEnd({ score: tot, won: tot >= ROUNDS * 7, message: tot === ROUNDS * 10 ? 'Flawless optics!' : `${tot} points — the lab is lit!`, emoji: '🔦', steps: log.current, stepsTitle: 'Your puzzles' })

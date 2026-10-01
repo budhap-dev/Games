@@ -82,7 +82,7 @@ export default function ScrambleGame({ difficulty, paused, onScore, onEnd }: Gam
           <button key={k} onClick={() => add(k)} disabled={used.includes(k) || status !== 'play'} aria-label={l}>{l}</button>
         ))}
       </div>
-      {status === 'reveal' ? <div className="howto">💡 It was <b>{word.toUpperCase()}</b></div>
+      {status === 'reveal' ? <div className="howto gym-tip">💡 It was <b>{word.toUpperCase()}</b></div>
         : <button className="btn ghost" onClick={reshuffle}>🔀 Mix again</button>}
     </>
   )
