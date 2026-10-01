@@ -10,6 +10,22 @@ export interface GameEnd {
   details?: string[]
   /** Optional compact list (e.g. per-answer breakdown) rendered in a small two-column grid */
   list?: { label: string; value: string; ok?: boolean }[]
+  /** The moves the player made, in order, so they can see how they got here (shown as "Your steps") */
+  steps?: GameStep[]
+  /** Heading for the steps panel; defaults to "Your steps" */
+  stepsTitle?: string
+}
+
+/** One move in the end-screen replay, e.g. { move: '307', result: '🐂 1 · 🐄 2' } */
+export interface GameStep {
+  /** What was played: a guess, a sum, a column, a word… */
+  move: string
+  /** What came back: feedback, the right answer, points… */
+  result?: string
+  /** true = good / correct, false = a mistake, omitted = neutral */
+  ok?: boolean
+  /** In two-player games, who moved ("You" / "Robot") */
+  who?: string
 }
 
 /** Every game is a React component with this contract. */

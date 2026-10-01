@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { aimFromDrag, bounceBoard, path, spawnHoop, stepBall, throughHoop } from './logic'
+import { aimFromDrag, bounceBoard, describeThrow, path, spawnHoop, stepBall, throughHoop } from './logic'
 import { seeded } from '@/shared/random'
 
 describe('hoop toss', () => {
@@ -30,5 +30,10 @@ describe('hoop toss', () => {
   it('hoops stay on the right side of the court', () => {
     const rnd = seeded(4)
     for (let k = 0; k < 50; k++) { const h = spawnHoop(0.15, rnd); expect(h.x).toBeGreaterThanOrEqual(0.5); expect(h.x + h.w).toBeLessThanOrEqual(0.9) }
+  })
+  it('describes a throw for the end screen', () => {
+    const a = (52 * Math.PI) / 180
+    expect(describeThrow(1.6 * Math.cos(a), -1.6 * Math.sin(a))).toBe('52° · power 1.6')
+    expect(describeThrow(1, -1, -0.26)).toBe('45° · power 1.4 · 💨 ←3')
   })
 })

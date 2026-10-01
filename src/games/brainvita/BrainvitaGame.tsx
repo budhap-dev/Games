@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { GameProps } from '../types'
-import { allMoves, applyMove, createBoard, movesFrom, pegCount } from './logic'
-import type { Board } from './logic'
+import { allMoves, applyMove, createBoard, movesFrom, pegCount, squareName } from './logic'
+import type { Board, Move } from './logic'
 import { sfx } from '@/shared/audio'
 
 export default function BrainvitaGame({ difficulty, paused, onScore, onEnd }: GameProps) {
@@ -9,6 +9,7 @@ export default function BrainvitaGame({ difficulty, paused, onScore, onEnd }: Ga
   const start = useMemo(() => createBoard(variant), [variant])
   const [history, setHistory] = useState<Board[]>([start])
   const board = history[history.length - 1]
+  const [jumps, setJumps] = useState<Move[]>([])
   const [sel, setSel] = useState<number | null>(null)
   const [done, setDone] = useState(false)
   const total = pegCount(start)
@@ -25,12 +26,13 @@ export default function BrainvitaGame({ difficulty, paused, onScore, onEnd }: Ga
     onScore(cleared)
     const won = left === 1
     if (won) sfx.win(); else sfx.good()
+    const steps = jumps.map((m, k) => ({ move: `${squareName(m.from)} → ${squareName(m.to)}`, ...(k === jumps.length - 1 ? { result: `${left} ${left === 1 ? 'gem' : 'gems'} left`, ok: won ? true : undefined } : {}) }))
     setTimeout(() => onEnd({
       score: cleared, won,
       message: won ? 'Perfect! One gem left!' : left <= 3 ? `So close! ${left} gems left` : `${left} gems left. Try again?`,
-      emoji: won ? '💎' : '✨',
+      emoji: won ? '💎' : '✨', steps,
     }), 500)
-  }, [moves, done, left, total, onScore, onEnd])
+  }, [moves, done, left, total, jumps, onScore, onEnd])
 
   const tap = (i: number) => {
     if (paused || done) return
@@ -39,6 +41,7 @@ export default function BrainvitaGame({ difficulty, paused, onScore, onEnd }: Ga
       const m = movesFrom(board, sel).find((x) => x.to === i)!
       sfx.pop()
       setHistory((h) => [...h, applyMove(board, m)])
+      setJumps((j) => [...j, m])
       setSel(null)
       onScore(total - left + 1)
     }
@@ -47,6 +50,7 @@ export default function BrainvitaGame({ difficulty, paused, onScore, onEnd }: Ga
     if (history.length < 2 || done) return
     sfx.tap()
     setHistory((h) => h.slice(0, -1))
+    setJumps((j) => j.slice(0, -1))
     setSel(null)
     onScore(total - pegCount(history[history.length - 2]))
   }

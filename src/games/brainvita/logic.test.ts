@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { allMoves, applyMove, createBoard, pegCount } from './logic'
+import { allMoves, applyMove, createBoard, pegCount, squareName } from './logic'
 
 describe('brainvita', () => {
   it('english board starts with 32 gems and 4 opening moves', () => {
@@ -18,5 +18,11 @@ describe('brainvita', () => {
     expect(n[m.over]).toBe(false)
     expect(n[m.to]).toBe(true)
     expect(n[m.from]).toBe(false)
+  })
+  it('names squares a1–g7 from the top-left', () => {
+    expect(squareName(0)).toBe('a1')
+    expect(squareName(24)).toBe('d4')
+    expect(squareName(48)).toBe('g7')
+    expect(squareName(10)).toBe('d2')
   })
 })

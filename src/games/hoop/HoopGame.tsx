@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
-import type { GameProps } from '../types'
-import { BOARD_H, aimFromDrag, bounceBoard, path, spawnHoop, stepBall, throughHoop } from './logic'
+import type { GameProps, GameStep } from '../types'
+import { BOARD_H, aimFromDrag, bounceBoard, describeThrow, path, spawnHoop, stepBall, throughHoop } from './logic'
 import type { Ball, Hoop } from './logic'
 import { useGameLoop } from '@/shared/useGameLoop'
 import { useCanvasSize, rrect } from '@/shared/useCanvas'
@@ -30,23 +30,27 @@ export default function HoopGame({ difficulty, paused, onScore, onEnd }: GamePro
   const flash = useRef(0)
   const over = useRef(false)
   const touched = useRef(false)
+  const steps = useRef<GameStep[]>([])
+  const shot = useRef('')
 
   const launch = () => {
     if (paused || flying.current || over.current) return
     touched.current = true
     ball.current = { ...HOME, ...aim.current }
+    shot.current = describeThrow(aim.current.vx, aim.current.vy, difficulty === 'hard' ? wind.current : undefined)
     flying.current = true; scoredThis.current = false; sfx.flip()
   }
   const endThrow = () => {
     flying.current = false
     left.current--
+    steps.current.push({ move: `Throw ${BALLS - left.current}`, result: `${shot.current} → ${scoredThis.current ? 'Swish!' : 'miss'}`, ok: scoredThis.current })
     if (scoredThis.current || difficulty === 'hard') hoop.current = spawnHoop(cfg.hoopW)
     if (difficulty === 'hard') wind.current = (Math.random() * 2 - 1) * cfg.wind
     ball.current = { ...HOME }
     if (left.current <= 0) {
       over.current = true
-      const s = score.current
-      setTimeout(() => onEnd({ score: s, won: s >= 5, message: s === BALLS ? 'Ten out of ten! Superstar!' : s >= 5 ? `${s} baskets — great aim!` : `${s} baskets — keep practising!`, emoji: '🏀' }), 400)
+      const s = score.current, st = [...steps.current]
+      setTimeout(() => onEnd({ score: s, won: s >= 5, message: s === BALLS ? 'Ten out of ten! Superstar!' : s >= 5 ? `${s} baskets — great aim!` : `${s} baskets — keep practising!`, emoji: '🏀', steps: st }), 400)
     }
   }
 

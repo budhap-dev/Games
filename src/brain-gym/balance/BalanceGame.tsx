@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { GameProps } from '@/games/types'
+import type { GameProps, GameStep } from '@/games/types'
 import { makeRound, stars, tilt, turning } from './logic'
 import type { Block } from './logic'
 import { sfx } from '@/shared/audio'
@@ -33,6 +33,7 @@ export default function BalanceGame({ difficulty, paused, onScore, onEnd }: Game
   const [right, setRight] = useState<Block[]>([])
   const [w, setW] = useState(round.tray[0])
   const [total, setTotal] = useState(0)
+  const [hist, setHist] = useState<GameStep[]>([])
   const [won, setWon] = useState<number | null>(null) // stars for this round once balanced
   const L = turning(round.left), R = turning(right)
   const gap = 175 / round.pegs
@@ -44,11 +45,12 @@ export default function BalanceGame({ difficulty, paused, onScore, onEnd }: Game
     setRight(nr); sfx.tap()
     if (turning(nr) !== L) return
     const s = stars(nr.length, round.best), t = total + s
-    setWon(s); setTotal(t); onScore(t); sfx.good()
+    const h = [...hist, { move: `Scale ${n}`, result: `${nr.length} blocks (best ${round.best}) · ${'⭐'.repeat(s)}`, ok: s === 3 || undefined }]
+    setWon(s); setTotal(t); onScore(t); setHist(h); sfx.good()
     setTimeout(() => {
       if (n >= ROUNDS) {
         const max = ROUNDS * 3
-        onEnd({ score: t, won: t >= 12, message: t === max ? 'Perfectly balanced, every time!' : t >= 12 ? `Great balancing! ${t} of ${max} stars` : `${t} of ${max} stars — try fewer blocks!`, emoji: '⚖️' })
+        onEnd({ score: t, won: t >= 12, message: t === max ? 'Perfectly balanced, every time!' : t >= 12 ? `Great balancing! ${t} of ${max} stars` : `${t} of ${max} stars — try fewer blocks!`, emoji: '⚖️', steps: h, stepsTitle: 'Your scales' })
         return
       }
       setN(n + 1); setRound(makeRound(difficulty)); setRight([]); setWon(null)

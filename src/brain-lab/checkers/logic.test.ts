@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { applyMove, initial, legalMoves, winner } from './logic'
+import { applyMove, initial, legalMoves, moveName, square, winner } from './logic'
 import type { Board } from './logic'
 
 const empty = (): Board => Array(64).fill(null)
@@ -25,5 +25,10 @@ describe('checkers', () => {
     expect(nb[1]).toBe('R')
     const solo = empty(); solo[3 * 8 + 2] = 'r'
     expect(winner(solo, 'b')).toBe('r')
+  })
+  it('names squares and moves from the human side', () => {
+    expect(square(0)).toBe('a8'); expect(square(63)).toBe('h1'); expect(square(5 * 8 + 2)).toBe('c3')
+    expect(moveName({ path: [42, 35], captures: [] })).toBe('c3 → d4')
+    expect(moveName({ path: [42, 28, 14], captures: [35, 21] })).toBe('c3 × e5 × g7')
   })
 })

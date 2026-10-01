@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { GameProps } from '@/games/types'
+import type { GameProps, GameStep } from '@/games/types'
 import { pickWords, scramble } from './logic'
 import { sfx } from '@/shared/audio'
 
@@ -13,23 +13,27 @@ export default function ScrambleGame({ difficulty, paused, onScore, onEnd }: Gam
   const [tries, setTries] = useState(0)
   const [status, setStatus] = useState<'play' | 'right' | 'wrong' | 'reveal'>('play')
   const [score, setScore] = useState(0)
+  const [hist, setHist] = useState<GameStep[]>([])
   const { word, emoji } = words[i]
 
-  const next = (s: number) => {
+  const next = (s: number, h: GameStep[]) => {
     if (i + 1 >= ROUNDS) {
-      onEnd({ score: s, won: s >= 6, message: s === ROUNDS ? 'Every word! Word wizard!' : s >= 6 ? `Great! ${s} out of ${ROUNDS} words` : `${s} out of ${ROUNDS} — keep spelling!`, emoji: s >= 6 ? '🧙' : '🔠' })
+      onEnd({ score: s, won: s >= 6, message: s === ROUNDS ? 'Every word! Word wizard!' : s >= 6 ? `Great! ${s} out of ${ROUNDS} words` : `${s} out of ${ROUNDS} — keep spelling!`, emoji: s >= 6 ? '🧙' : '🔠', steps: h, stepsTitle: 'Your words' })
       return
     }
     setI(i + 1); setLetters(scramble(words[i + 1].word)); setUsed([]); setTries(0); setStatus('play')
   }
   const check = (u: number[]) => {
-    if (u.map((k) => letters[k]).join('') === word) {
-      const s = score + 1
-      sfx.good(); setScore(s); onScore(s); setStatus('right')
-      setTimeout(() => next(s), 900)
+    const spelled = u.map((k) => letters[k]).join('')
+    const move = `${word.toUpperCase()} ${emoji}`
+    if (spelled === word) {
+      const s = score + 1, h = [...hist, { move, result: tries ? '✓ 2nd try' : '✓ first try', ok: true }]
+      sfx.good(); setScore(s); onScore(s); setStatus('right'); setHist(h)
+      setTimeout(() => next(s, h), 900)
     } else if (tries + 1 >= 2) {
-      sfx.bad(); setStatus('reveal')
-      setTimeout(() => next(score), 1800)
+      const h = [...hist, { move, result: `you: ${spelled.toUpperCase()}`, ok: false }]
+      sfx.bad(); setStatus('reveal'); setHist(h)
+      setTimeout(() => next(score, h), 1800)
     } else {
       sfx.bad(); setTries(tries + 1); setStatus('wrong')
       setTimeout(() => { setUsed([]); setStatus('play') }, 700)

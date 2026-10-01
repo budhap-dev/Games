@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { GameProps } from '@/games/types'
+import type { GameProps, GameStep } from '@/games/types'
 import { makeQuestion } from './logic'
 import { sfx } from '@/shared/audio'
 
@@ -13,9 +13,10 @@ export default function QuickMathsGame({ difficulty, paused, onScore, onEnd }: G
   const [score, setScore] = useState(0)
   const [picked, setPicked] = useState<number | null>(null)
   const [left, setLeft] = useState(PER_Q_MS)
+  const [hist, setHist] = useState<GameStep[]>([])
 
-  const next = (s: number) => {
-    if (i >= ROUNDS) onEnd({ score: s, won: s >= 8, message: s === ROUNDS ? 'Perfect 10!' : s >= 8 ? `Brilliant! ${s} out of 10` : `${s} out of 10 — good practice!`, emoji: s >= 8 ? '🏅' : '➕' })
+  const next = (s: number, h: GameStep[]) => {
+    if (i >= ROUNDS) onEnd({ score: s, won: s >= 8, message: s === ROUNDS ? 'Perfect 10!' : s >= 8 ? `Brilliant! ${s} out of 10` : `${s} out of 10 — good practice!`, emoji: s >= 8 ? '🏅' : '➕', steps: h, stepsTitle: 'Your answers' })
     else { setI(i + 1); setQ(makeQuestion(difficulty)); setPicked(null); setLeft(PER_Q_MS) }
   }
   const choose = (opt: number | null) => {
@@ -23,8 +24,10 @@ export default function QuickMathsGame({ difficulty, paused, onScore, onEnd }: G
     setPicked(opt ?? -1)
     const ok = opt === q.answer
     const s = score + (ok ? 1 : 0)
+    const h = [...hist, { move: q.text.replace(' = ?', ''), result: ok ? `${q.answer} ✓` : `${opt === null ? 'too slow' : `you ${opt}`} · it's ${q.answer}`, ok }]
+    setHist(h)
     if (ok) { sfx.good(); setScore(s); onScore(s) } else sfx.bad()
-    setTimeout(() => next(s), ok ? 600 : 1200)
+    setTimeout(() => next(s, h), ok ? 600 : 1200)
   }
 
   useEffect(() => {

@@ -43,3 +43,9 @@ export function bounceBoard(prev: Ball, b: Ball, h: Hoop, r: number): Ball {
 
 export const spawnHoop = (w: number, rnd: () => number = Math.random): Hoop =>
   ({ x: 0.5 + rnd() * (0.4 - w), y: 0.3 + rnd() * 0.4, w })
+
+/** End-screen summary of a throw: launch angle, speed and (optionally) wind, e.g. "52° · power 1.6 · 💨 →3". */
+export function describeThrow(vx: number, vy: number, wind?: number): string {
+  const s = `${Math.round((Math.atan2(-vy, vx) * 180) / Math.PI)}° · power ${Math.hypot(vx, vy).toFixed(1)}`
+  return wind === undefined ? s : `${s} · 💨 ${wind >= 0 ? '→' : '←'}${Math.round(Math.abs(wind) * 10)}`
+}

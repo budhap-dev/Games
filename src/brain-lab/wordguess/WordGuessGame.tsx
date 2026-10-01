@@ -6,6 +6,7 @@ import { WORDS } from './words'
 import { sfx } from '@/shared/audio'
 
 const CONFIG = { easy: { tries: 8, hint: true }, normal: { tries: 6, hint: false }, hard: { tries: 5, hint: false } }
+const TILE: Record<Mark, string> = { g: '🟩', y: '🟨', x: '⬜' }
 const KEYS = ['qwertyuiop', 'asdfghjkl', '⏎zxcvbnm⌫']
 
 export default function WordGuessGame({ difficulty, paused, onScore, onEnd }: GameProps) {
@@ -22,14 +23,15 @@ export default function WordGuessGame({ difficulty, paused, onScore, onEnd }: Ga
     const marks = score(cur, answer)
     const next = [...rows, { guess: cur, marks }]
     setRows(next); setCur(cfg.hint ? answer[0] : '')
+    const steps = next.map((r) => ({ move: r.guess.toUpperCase(), result: r.marks.map((m) => TILE[m]).join(''), ok: r.guess === answer }))
     if (cur === answer) {
       setDone(true); sfx.win()
       const pts = (cfg.tries - next.length + 1) * 10
       onScore(pts)
-      setTimeout(() => onEnd({ score: pts, won: true, message: next.length === 1 ? 'First try?! Legendary.' : `Got it in ${next.length}!`, emoji: '🔤' }), 700)
+      setTimeout(() => onEnd({ score: pts, won: true, message: next.length === 1 ? 'First try?! Legendary.' : `Got it in ${next.length}!`, emoji: '🔤', steps, stepsTitle: 'Your guesses' }), 700)
     } else if (next.length >= cfg.tries) {
       setDone(true); sfx.lose()
-      setTimeout(() => onEnd({ score: 0, won: false, message: `The word was ${answer.toUpperCase()}`, emoji: '📖' }), 700)
+      setTimeout(() => onEnd({ score: 0, won: false, message: `The word was ${answer.toUpperCase()}`, emoji: '📖', steps, stepsTitle: 'Your guesses' }), 700)
     } else sfx.flip()
   }
   const type = (k: string) => {

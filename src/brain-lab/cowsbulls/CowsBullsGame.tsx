@@ -19,13 +19,14 @@ export default function CowsBullsGame({ difficulty, paused, onScore, onEnd }: Ga
     const r = bullsCows(cur, secret)
     const next = [...log, { g: cur, ...r }]
     setLog(next); setCur('')
+    const steps = next.map((l) => ({ move: l.g, result: `🐂 ${l.bulls} · 🐄 ${l.cows}`, ok: l.bulls === cfg.len }))
     if (r.bulls === cfg.len) {
       setDone(true); sfx.win()
       const pts = (cfg.tries - next.length + 1) * 10; onScore(pts)
-      setTimeout(() => onEnd({ score: pts, won: true, message: `Cracked ${secret} in ${next.length}!`, emoji: '🐮' }), 700)
+      setTimeout(() => onEnd({ score: pts, won: true, message: `Cracked ${secret} in ${next.length}!`, emoji: '🐮', steps, stepsTitle: 'Your guesses' }), 700)
     } else if (next.length >= cfg.tries) {
       setDone(true); sfx.lose()
-      setTimeout(() => onEnd({ score: 0, won: false, message: `The number was ${secret}`, emoji: '🔒' }), 800)
+      setTimeout(() => onEnd({ score: 0, won: false, message: `The number was ${secret}`, emoji: '🔒', steps, stepsTitle: 'Your guesses' }), 800)
     } else sfx.flip()
   }
   const type = (d: string) => { if (paused || done || cur.length >= cfg.len || cur.includes(d)) { if (cur.includes(d)) sfx.bad(); return } sfx.tap(); setCur(cur + d) }

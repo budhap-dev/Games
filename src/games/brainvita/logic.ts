@@ -41,3 +41,6 @@ export function applyMove(b: Board, m: Move): Board {
 }
 
 export const pegCount = (b: Board) => b.filter((x) => x === true).length
+
+/** Board index → square name: columns a–g left to right, rows 1–7 top to bottom (0 → "a1", 24 → "d4"). */
+export const squareName = (i: number) => `${'abcdefg'[i % 7]}${Math.floor(i / 7) + 1}`

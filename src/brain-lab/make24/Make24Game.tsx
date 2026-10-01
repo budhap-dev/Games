@@ -1,7 +1,7 @@
-import { useState } from 'react'
-import type { GameProps } from '@/games/types'
-import { OPS, apply, makePuzzle } from './logic'
-import type { Op } from './logic'
+import { useRef, useState } from 'react'
+import type { GameProps, GameStep } from '@/games/types'
+import { OPS, apply, join, makePuzzle, num, solution } from './logic'
+import type { Expr, Op } from './logic'
 import { sfx } from '@/shared/audio'
 
 const MAX = { easy: 6, normal: 9, hard: 13 }
@@ -12,15 +12,17 @@ export default function Make24Game({ difficulty, paused, onScore, onEnd }: GameP
   const [round, setRound] = useState(1)
   const [puzzle, setPuzzle] = useState(() => makePuzzle(MAX[difficulty]))
   const [nums, setNums] = useState<(number | null)[]>(puzzle)
-  const [hist, setHist] = useState<(number | null)[][]>([])
+  const [ex, setEx] = useState<(Expr | null)[]>(() => puzzle.map(num))
+  const [hist, setHist] = useState<{ n: (number | null)[]; e: (Expr | null)[] }[]>([])
   const [a, setA] = useState<number | null>(null)
   const [op, setOp] = useState<Op | null>(null)
   const [solved, setSolved] = useState(0)
   const [flash, setFlash] = useState<string | null>(null)
+  const log = useRef<GameStep[]>([])
 
-  const reset = (p: number[]) => { setPuzzle(p); setNums(p); setHist([]); setA(null); setOp(null) }
+  const reset = (p: number[]) => { setPuzzle(p); setNums(p); setEx(p.map(num)); setHist([]); setA(null); setOp(null) }
   const next = (s: number) => {
-    if (round >= ROUNDS) onEnd({ score: s, won: s >= 3, message: s === ROUNDS ? 'All five — maths wizard!' : `${s} out of ${ROUNDS} solved`, emoji: s >= 3 ? '🎯' : '🧮' })
+    if (round >= ROUNDS) onEnd({ score: s, won: s >= 3, message: s === ROUNDS ? 'All five — maths wizard!' : `${s} out of ${ROUNDS} solved`, emoji: s >= 3 ? '🎯' : '🧮', steps: log.current, stepsTitle: 'Your puzzles' })
     else { setRound(round + 1); reset(makePuzzle(MAX[difficulty])) }
   }
   const pick = (i: number) => {
@@ -32,14 +34,15 @@ export default function Make24Game({ difficulty, paused, onScore, onEnd }: GameP
     const v = apply(nums[a]!, op, nums[i]!)
     if (v === null) { sfx.bad(); return }
     const n = nums.slice(); n[a] = null; n[i] = v
-    setHist([...hist, nums]); setNums(n); setA(i); setOp(null)
+    const e = ex.slice(); e[a] = null; e[i] = join(ex[a]!, op, ex[i]!)
+    setHist([...hist, { n: nums, e: ex }]); setNums(n); setEx(e); setA(i); setOp(null)
     if (n.filter((x) => x !== null).length === 1) {
-      if (Math.abs(v - 24) < 1e-6) { sfx.win(); const s = solved + 1; setSolved(s); onScore(s); setFlash('✅ 24!'); setTimeout(() => { setFlash(null); next(s) }, 900) }
+      if (Math.abs(v - 24) < 1e-6) { sfx.win(); log.current = [...log.current, { move: puzzle.join(', '), result: e[i]!.s, ok: true }]; const s = solved + 1; setSolved(s); onScore(s); setFlash('✅ 24!'); setTimeout(() => { setFlash(null); next(s) }, 900) }
       else { sfx.bad(); setFlash(`${fmt(v)} — not 24, try again`); setTimeout(() => { setFlash(null); reset(puzzle) }, 1100) }
     }
   }
-  const undo = () => { if (!hist.length) return; sfx.tap(); setNums(hist[hist.length - 1]); setHist(hist.slice(0, -1)); setA(null); setOp(null) }
-  const skip = () => { sfx.tap(); next(solved) }
+  const undo = () => { if (!hist.length) return; sfx.tap(); const h = hist[hist.length - 1]; setNums(h.n); setEx(h.e); setHist(hist.slice(0, -1)); setA(null); setOp(null) }
+  const skip = () => { if (flash?.startsWith('✅')) return; sfx.tap(); log.current = [...log.current, { move: puzzle.join(', '), result: `skipped · ${solution(puzzle)}`, ok: false }]; next(solved) }
 
   return (
     <>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { GameProps } from '@/games/types'
+import type { GameProps, GameStep } from '@/games/types'
 import { makeOddRound } from './logic'
 import { sfx } from '@/shared/audio'
 
@@ -11,15 +11,18 @@ export default function OddOneGame({ difficulty, paused, onScore, onEnd }: GameP
   const [i, setI] = useState(1)
   const [score, setScore] = useState(0)
   const [picked, setPicked] = useState<string | null>(null)
+  const [hist, setHist] = useState<GameStep[]>([])
 
   const choose = (item: string) => {
     if (picked || paused) return
     setPicked(item)
     const ok = item === round.odd
     const s = score + (ok ? 1 : 0)
+    const h = [...hist, { move: item, result: `odd: ${round.odd} · ${round.hint}`, ok }]
+    setHist(h)
     if (ok) { sfx.good(); setScore(s); onScore(s) } else sfx.bad()
     setTimeout(() => {
-      if (i >= ROUNDS) onEnd({ score: s, won: s >= 6, message: s === ROUNDS ? 'Perfect! Sharp eyes!' : s >= 6 ? `Great! ${s} out of 8` : `${s} out of 8 — keep looking!`, emoji: s >= 6 ? '🦆' : '👀' })
+      if (i >= ROUNDS) onEnd({ score: s, won: s >= 6, message: s === ROUNDS ? 'Perfect! Sharp eyes!' : s >= 6 ? `Great! ${s} out of 8` : `${s} out of 8 — keep looking!`, emoji: s >= 6 ? '🦆' : '👀', steps: h, stepsTitle: 'Your picks' })
       else { setI(i + 1); setRound(makeOddRound(difficulty)); setPicked(null) }
     }, ok ? 700 : 1100)
   }

@@ -6,6 +6,7 @@ import { sfx } from '@/shared/audio'
 const COLORS = ['#ff5fa2', '#2d9cdb', '#ffc93c', '#3fb55b', '#7b4fd6', '#ff7a1a']
 const CONFIG = { easy: { colours: 4, tries: 12, repeats: false }, normal: { colours: 6, tries: 10, repeats: false }, hard: { colours: 6, tries: 8, repeats: true } }
 const PEGS = 4
+const DOTS = ['🔴', '🔵', '🟡', '🟢', '🟣', '🟠']
 
 export default function CodeBreakerGame({ difficulty, paused, onScore, onEnd }: GameProps) {
   const cfg = CONFIG[difficulty]
@@ -28,14 +29,15 @@ export default function CodeBreakerGame({ difficulty, paused, onScore, onEnd }: 
     const fb = feedback(guess, code)
     const next = [...rows, { guess, fb }]
     setRows(next); setCur(Array(PEGS).fill(null)); setSel(0)
+    const steps = next.map((r) => ({ move: r.guess.map((c) => DOTS[c]).join(''), result: '⚫'.repeat(r.fb.black) + '⚪'.repeat(r.fb.white) || '—', ok: r.fb.black === PEGS }))
     if (fb.black === PEGS) {
       setDone(true); sfx.win()
       const pts = (cfg.tries - next.length + 1) * 10
       onScore(pts)
-      setTimeout(() => onEnd({ score: pts, won: true, message: `Cracked in ${next.length}!`, emoji: '🕵️' }), 700)
+      setTimeout(() => onEnd({ score: pts, won: true, message: `Cracked in ${next.length}!`, emoji: '🕵️', steps, stepsTitle: 'Your guesses' }), 700)
     } else if (next.length >= cfg.tries) {
       setDone(true); sfx.lose()
-      setTimeout(() => onEnd({ score: 0, won: false, message: 'Out of guesses — the code is revealed below', emoji: '🔒' }), 900)
+      setTimeout(() => onEnd({ score: 0, won: false, message: 'Out of guesses — the code is revealed below', emoji: '🔒', steps, stepsTitle: 'Your guesses' }), 900)
     } else sfx.flip()
   }
 

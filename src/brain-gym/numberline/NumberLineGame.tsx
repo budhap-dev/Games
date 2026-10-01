@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import type { PointerEvent } from 'react'
-import type { GameProps } from '@/games/types'
+import type { GameProps, GameStep } from '@/games/types'
 import { grade, makeRound, valueAt } from './logic'
 import { sfx } from '@/shared/audio'
 
@@ -12,6 +12,7 @@ export default function NumberLineGame({ difficulty, paused, onScore, onEnd }: G
   const [n, setN] = useState(1)
   const [guess, setGuess] = useState<number | null>(null)
   const [total, setTotal] = useState(0)
+  const [hist, setHist] = useState<GameStep[]>([])
   const svg = useRef<SVGSVGElement>(null)
   const xOf = (v: number) => X0 + ((v - round.min) / (round.max - round.min)) * (X1 - X0)
   const got = guess === null ? null : grade(round, guess)
@@ -22,12 +23,14 @@ export default function NumberLineGame({ difficulty, paused, onScore, onEnd }: G
     const vx = ((e.clientX - box.left) / box.width) * 400
     const g = valueAt(round, (vx - X0) / (X1 - X0))
     const s = grade(round, g), t = total + s
-    setGuess(g); setTotal(t); onScore(t)
+    const you = round.max > 2 ? Math.round(g) : +g.toFixed(2)
+    const h = [...hist, { move: `Where is ${round.label}?`, result: `you ${you} · ${s ? '⭐'.repeat(s) : `it's ${round.label}`}`, ok: s === 3 ? true : s === 0 ? false : undefined }]
+    setGuess(g); setTotal(t); onScore(t); setHist(h)
     s === 3 ? sfx.good() : s > 0 ? sfx.pop() : sfx.bad()
     setTimeout(() => {
       if (n >= ROUNDS) {
         const max = ROUNDS * 3
-        onEnd({ score: t, won: t >= 20, message: t >= 27 ? 'Bullseye frog! Amazing!' : t >= 20 ? `Great jumping! ${t} of ${max} stars` : `${t} of ${max} stars — keep hopping!`, emoji: '🐸' })
+        onEnd({ score: t, won: t >= 20, message: t >= 27 ? 'Bullseye frog! Amazing!' : t >= 20 ? `Great jumping! ${t} of ${max} stars` : `${t} of ${max} stars — keep hopping!`, emoji: '🐸', steps: h, stepsTitle: 'Your jumps' })
         return
       }
       setN(n + 1); setRound(makeRound(difficulty)); setGuess(null)

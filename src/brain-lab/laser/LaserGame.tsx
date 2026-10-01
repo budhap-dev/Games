@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import type { GameProps } from '@/games/types'
+import { useRef, useState } from 'react'
+import type { GameProps, GameStep } from '@/games/types'
 import { DIRS, flip, litTargets, makePuzzle, puzzlePoints, solved, trace } from './logic'
 import type { Mirrors } from './logic'
 import { sfx } from '@/shared/audio'
@@ -14,6 +14,7 @@ export default function LaserGame({ difficulty, paused, onScore, onEnd }: GamePr
   const [taps, setTaps] = useState(0)
   const [total, setTotal] = useState(0)
   const [done, setDone] = useState(false)
+  const log = useRef<GameStep[]>([])
   const beam = trace(p.n, p.row, mirrors)
   const lit = litTargets(p, mirrors)
   const cx = (i: number) => PAD + (i % p.n) * C + C / 2, cy = (i: number) => Math.floor(i / p.n) * C + C / 2
@@ -26,9 +27,10 @@ export default function LaserGame({ difficulty, paused, onScore, onEnd }: GamePr
     if (!solved(p, m)) return
     const pts = puzzlePoints(t, p.par), tot = total + pts
     setDone(true); setTotal(tot); onScore(tot); sfx.good()
+    log.current = [...log.current, { move: `Puzzle ${n}`, result: `${t} taps (par ${p.par}) · +${pts}`, ok: t <= p.par }]
     setTimeout(() => {
       if (n >= ROUNDS) {
-        onEnd({ score: tot, won: tot >= ROUNDS * 7, message: tot === ROUNDS * 10 ? 'Flawless optics!' : `${tot} points — the lab is lit!`, emoji: '🔦' })
+        onEnd({ score: tot, won: tot >= ROUNDS * 7, message: tot === ROUNDS * 10 ? 'Flawless optics!' : `${tot} points — the lab is lit!`, emoji: '🔦', steps: log.current, stepsTitle: 'Your puzzles' })
         return
       }
       const np = makePuzzle(difficulty)

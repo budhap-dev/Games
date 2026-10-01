@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { GameProps } from '@/games/types'
-import { canMove, generateMaze, move } from './logic'
+import { ARROW, canMove, generateMaze, move, runs } from './logic'
 import { useDirectionInput } from '@/shared/useInput'
 import type { Dir } from '@/shared/useInput'
 import { DPad } from '@/shared/DPad'
@@ -15,17 +15,18 @@ export default function MazeGame({ difficulty, paused, onScore, onEnd }: GamePro
   const canvas = useRef<HTMLCanvasElement>(null)
   const size = useCanvasSize(canvas)
   const [pos, setPos] = useState<[number, number]>([0, 0])
-  const [steps, setSteps] = useState(0)
+  const posRef = useRef<[number, number]>([0, 0])
+  const route = useRef<Dir[]>([])
   const done = useRef(false)
 
   const go = useCallback((d: Dir) => {
     if (paused || done.current) return
-    setPos(([x, y]) => {
-      if (!canMove(maze, x, y, d)) { sfx.tap(); return [x, y] }
-      sfx.flip()
-      setSteps((s) => s + 1)
-      return move(x, y, d)
-    })
+    const [x, y] = posRef.current
+    if (!canMove(maze, x, y, d)) { sfx.tap(); return }
+    sfx.flip()
+    route.current.push(d)
+    posRef.current = move(x, y, d)
+    setPos(posRef.current)
   }, [maze, paused])
   useDirectionInput(go, !paused)
 
@@ -33,9 +34,11 @@ export default function MazeGame({ difficulty, paused, onScore, onEnd }: GamePro
     if (pos[0] === n - 1 && pos[1] === n - 1 && !done.current) {
       done.current = true
       sfx.good(); onScore(1)
-      setTimeout(() => onEnd({ score: 1, won: true, message: `You found the star in ${steps} steps!`, emoji: '⭐' }), 400)
+      const r = route.current
+      const steps = runs(r).map((s) => ({ move: `${ARROW[s.dir]} ${s.dir}`, result: `${s.n} ${s.n === 1 ? 'step' : 'steps'}` }))
+      setTimeout(() => onEnd({ score: 1, won: true, message: `You found the star in ${r.length} steps!`, emoji: '⭐', steps, stepsTitle: 'Your route' }), 400)
     }
-  }, [pos, n, steps, onScore, onEnd])
+  }, [pos, n, onScore, onEnd])
 
   useEffect(() => {
     const c = canvas.current
@@ -63,7 +66,7 @@ export default function MazeGame({ difficulty, paused, onScore, onEnd }: GamePro
 
   return (
     <>
-      <div className="turn">👣 {steps} steps</div>
+      <div className="turn">👣 {route.current.length} steps</div>
       <div className="stage"><canvas ref={canvas} aria-label="Maze" /></div>
       <DPad onDir={go} />
     </>

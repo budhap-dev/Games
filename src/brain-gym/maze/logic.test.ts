@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { canMove, generateMaze, move } from './logic'
+import { canMove, generateMaze, move, runs } from './logic'
 import type { Dir } from '@/shared/useInput'
 
 describe('maze', () => {
@@ -28,5 +28,9 @@ describe('maze', () => {
       expect(canMove(m, 0, i, 'left')).toBe(false)
       expect(canMove(m, n - 1, i, 'right')).toBe(false)
     }
+  })
+  it('collapses a route into runs', () => {
+    expect(runs(['right', 'right', 'down', 'right'])).toEqual([{ dir: 'right', n: 2 }, { dir: 'down', n: 1 }, { dir: 'right', n: 1 }])
+    expect(runs([])).toEqual([])
   })
 })

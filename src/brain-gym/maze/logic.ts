@@ -34,3 +34,11 @@ export function canMove(m: Maze, x: number, y: number, d: Dir) {
   return (m.cells[y * m.size + x] & W[d]) === 0
 }
 export const move = (x: number, y: number, d: Dir): [number, number] => [x + D[d][0], y + D[d][1]]
+
+export const ARROW: Record<Dir, string> = { up: '↑', right: '→', down: '↓', left: '←' }
+/** Collapse a route into runs of the same direction: → → ↓ becomes [→ 2, ↓ 1]. */
+export function runs(route: Dir[]): { dir: Dir; n: number }[] {
+  const out: { dir: Dir; n: number }[] = []
+  for (const d of route) { const last = out[out.length - 1]; if (last && last.dir === d) last.n++; else out.push({ dir: d, n: 1 }) }
+  return out
+}

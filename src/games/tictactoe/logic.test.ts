@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { robotMove, winner } from './logic'
+import { robotMove, squareName, winner } from './logic'
 import type { Board } from './logic'
 
 const b = (s: string): Board => s.split('').map((c) => (c === '.' ? null : (c as 'X' | 'O')))
@@ -28,5 +28,10 @@ describe('tic-tac-toe', () => {
       turn = turn === 'X' ? 'O' : 'X'
     }
     expect(winner(board)?.mark).not.toBe('X')
+  })
+  it('names squares in words', () => {
+    expect([0, 1, 2, 3, 4, 5, 6, 7, 8].map(squareName)).toEqual([
+      'top-left', 'top-middle', 'top-right', 'middle-left', 'middle', 'middle-right', 'bottom-left', 'bottom-middle', 'bottom-right',
+    ])
   })
 })

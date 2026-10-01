@@ -7,6 +7,10 @@ export const N = 8
 const rc = (i: number) => [Math.floor(i / N), i % N] as const
 const idx = (r: number, c: number) => (r < 0 || c < 0 || r >= N || c >= N ? -1 : r * N + c)
 export const sideOf = (p: Piece): Side | null => (p ? (p.toLowerCase() as Side) : null)
+/** Board index → square from the human's view: columns a–h left→right, rows 8→1 top→bottom. */
+export const square = (i: number) => 'abcdefgh'[i % N] + (N - Math.floor(i / N))
+/** "c3 → d4" for a step, "c3 × e5 × g7" for jumps. */
+export const moveName = (m: Move) => m.path.map(square).join(m.captures.length ? ' × ' : ' → ')
 const isKing = (p: Piece) => p === 'R' || p === 'B'
 
 export function initial(): Board {

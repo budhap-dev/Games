@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import type { GameProps } from '../types'
+import { useEffect, useRef, useState } from 'react'
+import type { GameProps, GameStep } from '../types'
 import { COLS, drop, empty, isFull, landingRow, robotMove, winner } from './logic'
 import type { Board, Disc } from './logic'
 import { sfx } from '@/shared/audio'
@@ -13,6 +13,7 @@ export default function ConnectFourGame({ difficulty, paused, onScore, onEnd }: 
   const [last, setLast] = useState<number | null>(null)
   const [done, setDone] = useState(false)
   const [winLine, setWinLine] = useState<number[]>([])
+  const steps = useRef<GameStep[]>([])
 
   const finish = (b: Board) => {
     const w = winner(b)
@@ -20,10 +21,12 @@ export default function ConnectFourGame({ difficulty, paused, onScore, onEnd }: 
       setWinLine(w.line); setDone(true)
       const humanWon = mode === 'friend' || w.disc === 'R'
       onScore(humanWon ? 1 : 0)
-      setTimeout(() => onEnd({ score: humanWon ? 1 : 0, won: humanWon, message: mode === 'friend' ? `${ICON[w.disc!]} wins!` : w.disc === 'R' ? 'You win!' : 'Robot wins this time!', emoji: humanWon ? '🏆' : '🤖' }), 1000)
+      const last = steps.current.length - 1
+      const st = steps.current.map((x, k) => k === last ? { ...x, result: '4 in a row!', ok: true } : x)
+      setTimeout(() => onEnd({ score: humanWon ? 1 : 0, won: humanWon, message: mode === 'friend' ? `${ICON[w.disc!]} wins!` : w.disc === 'R' ? 'You win!' : 'Robot wins this time!', emoji: humanWon ? '🏆' : '🤖', steps: st, stepsTitle: 'Moves' }), 1000)
       return true
     }
-    if (isFull(b)) { setDone(true); setTimeout(() => onEnd({ score: 0, won: false, message: "It's a draw!", emoji: '🤝' }), 700); return true }
+    if (isFull(b)) { setDone(true); const st = [...steps.current]; setTimeout(() => onEnd({ score: 0, won: false, message: "It's a draw!", emoji: '🤝', steps: st, stepsTitle: 'Moves' }), 700); return true }
     return false
   }
   const play = (col: number, d: Disc) => {
@@ -31,6 +34,7 @@ export default function ConnectFourGame({ difficulty, paused, onScore, onEnd }: 
     if (r < 0) return
     const nb = drop(board, col, d)!
     setBoard(nb); setLast(r * COLS + col); sfx.flip()
+    steps.current.push({ who: mode === 'friend' ? ICON[d!] : d === 'R' ? 'You' : 'Robot', move: `Column ${col + 1}` })
     if (!finish(nb)) setTurn(d === 'R' ? 'Y' : 'R')
   }
   useEffect(() => {
