@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import type { GameMeta } from '@/games/types'
@@ -9,6 +9,7 @@ import { sfx } from '@/shared/audio'
 import { authEnabled } from '@/shared/auth'
 import { Icon } from '@/shared/Icon'
 import type { IconName } from '@/shared/Icon'
+import { share } from '@/shared/share'
 
 const TABS: { id: Category; label: string; icon: IconName }[] = [
   { id: 'arcade', label: 'Arcade', icon: 'gamepad' },
@@ -35,6 +36,12 @@ export function Home() {
   const user = useStore((s) => s.user)
   const toggleFav = useStore((s) => s.toggleFav)
   const nav = useNavigate()
+  const [copied, setCopied] = useState(false)
+  const shareApp = async () => {
+    sfx.unlock(); sfx.tap()
+    const r = await share({ title: 'PlayPatch', text: 'Free games for kids — no ads, works offline.', url: `${location.origin}/` })
+    if (r === 'copied') { setCopied(true); setTimeout(() => setCopied(false), 1800) }
+  }
   const isFav = (g: GameMeta) => favs.includes(g.id)
   const list = GAMES.filter((g) => g.category === tab).sort((a, b) => Number(isFav(b)) - Number(isFav(a)))
   const favList = favs.map((id) => GAMES.find((g) => g.id === id)).filter((g): g is GameMeta => !!g)
@@ -56,14 +63,16 @@ export function Home() {
 
   return (
     <>
-      <header className="topbar">
+      <header className={`topbar${authEnabled ? ' crowded' : ''}`}>
         <div className="brand"><img src="/icons/icon.svg" alt="PlayPatch" /><span>PlayPatch</span></div>
         <div className="grow" />
         {authEnabled && (user ? <Link className="btn icon ghost" to="/account" aria-label={`Account: ${user.name}`}>{user.photo ? <img src={user.photo} alt="" width={30} height={30} style={{ borderRadius: '50%' }} referrerPolicy="no-referrer" /> : <Icon name="user" />}</Link> : <Link className="btn" to="/account">Sign in</Link>)}
+        <button className="btn icon ghost" aria-label="Share PlayPatch" onClick={shareApp}><Icon name={copied ? 'check' : 'share'} /></button>
         <Link className="btn icon ghost" to="/themes" aria-label="Themes"><Icon name="palette" /></Link>
         <Link className="btn" to="/stickers" aria-label={`Sticker book: ${stickers}`}><Icon name="star" size={20} /> {stickers}</Link>
         <Link className="btn icon ghost" to="/grown-ups" aria-label="Grown-ups corner"><Icon name="lock" /></Link>
       </header>
+      {copied && <div className="toast" role="status">Link copied</div>}
       <main className="page">
         <section className="hero">
           <p className="eyebrow">{greeting()}{user ? `, ${user.name}` : ''}</p>

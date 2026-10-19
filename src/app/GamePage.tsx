@@ -10,6 +10,7 @@ import type { Sticker } from '@/shared/stickers'
 import { sfx } from '@/shared/audio'
 import { Confetti } from '@/shared/Confetti'
 import { Icon } from '@/shared/Icon'
+import { share } from '@/shared/share'
 
 const CATEGORY = { arcade: 'Arcade', brain: 'Brain Gym', teen: 'Brain Lab' } as const
 /** "1 stars" → "1 star" (labels like "solved" or "fruit" are left alone) */
@@ -76,8 +77,7 @@ export function GamePage() {
   const shareLink = async () => {
     const url = `${location.origin}/play/${game!.id}?d=${difficulty}&start=1`
     sfx.tap()
-    try { if (navigator.share && navigator.maxTouchPoints > 0) { await navigator.share({ title: `PlayPatch — ${game!.name}`, url }); return } } catch (e) { if ((e as Error).name === 'AbortError') return }
-    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800) } catch { /* clipboard blocked */ }
+    if (await share({ title: `PlayPatch — ${game!.name}`, url }) === 'copied') { setCopied(true); setTimeout(() => setCopied(false), 1800) }
   }
   const start = () => {
     sfx.unlock(); sfx.tap()
