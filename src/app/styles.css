@@ -100,6 +100,9 @@ a { color: inherit; text-decoration: none; }
 .page-title { font-size: 1.35rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 460px) { .topbar .brand span { display: none; } }
 @media (max-width: 420px) { .topbar { gap: 6px; padding: 12px; } .topbar .btn { padding: 0 12px; } .topbar .btn.icon { width: 48px; padding: 0; } }
+/* Home with an account button has one control more than fits beside the logo on a phone */
+@media (max-width: 400px) { .topbar.crowded .brand { display: none; } }
+@media (max-width: 340px) { .topbar { gap: 2px; padding: 12px 8px; } }
 .brand { font-family: var(--display); font-weight: 800; font-size: 1.4rem; display: flex; align-items: center; gap: 10px; letter-spacing: -0.03em; }
 .brand img { width: 36px; height: 36px; border-radius: 10px; box-shadow: var(--shadow); }
 
